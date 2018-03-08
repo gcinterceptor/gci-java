@@ -3,7 +3,7 @@ package com.gcinterceptor.gci;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Sampler {
+class Sampler {
 	// Default sample rate should be fairly small, so big requests get checked up quickly.
 	private final int DEFAULT_SAMPLE_RATE = 64; // TODO(David) Update this value, if needed
 	// Max sample rate can not be very big because of peaks.
@@ -22,11 +22,11 @@ public class Sampler {
 		}
 	}
 	
-	public int getCurrentSampleSize() {
+	int getCurrentSampleSize() {
 		return currentSampleRate.get();
 	}
 	
-	public void updateSampler(int lastFinished) { 
+	void updateSampler(int lastFinished) { 
 		// Update history.
 		pastSampleRates[next] = lastFinished;
 		next = (next + 1) % pastSampleRates.length;
