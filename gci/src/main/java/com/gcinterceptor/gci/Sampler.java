@@ -31,16 +31,10 @@ class Sampler {
 		pastSampleRates[next] = lastFinished;
 		next = (next + 1) % pastSampleRates.length;
 		
-		// Get minimum value.
 		int min = Arrays.stream(pastSampleRates).min().getAsInt();
 
-		// Update currentSampleSize
-		if (min > 0) {			
-			if (min > MAX_SAMPLE_RATE) { // NOTE: we could use math.Min. We tried that, but it leads to a lot of type casting.
-				currentSampleRate.set(MAX_SAMPLE_RATE);
-			} else {
-				currentSampleRate.set(min);
-			}
+		if (min > 0) {	
+			currentSampleRate.set(Math.min(min, MAX_SAMPLE_RATE));
 		}
 		
 	}
