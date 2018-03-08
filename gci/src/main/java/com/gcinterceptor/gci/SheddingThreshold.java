@@ -11,7 +11,7 @@ class SheddingThreshold {
 
 	/**
 	 * The maximum value of shedding threshold to collect. Default heap threshold rate should
-	 * be fairly bigger, aiming at to avoid overflow of memory.
+	 * be not too bigger, aiming at to avoid overflow of memory.
 	 */
 	private final long MAX_SHEDDING_THRESHOLD = 512 * 1024 * 1024; // TODO(David) Update this value, if needed
 
