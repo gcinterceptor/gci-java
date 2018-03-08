@@ -4,11 +4,18 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class SheddingThreshold {
 	private final long MIN_SHEDDING_THRESHOLD = 32 * 1024 * 1024; // TODO(David) Update this value, if needed
-	private final long MAX_SHEDDING_THRESHOLD = 512 * 1024 * 1024;  // TODO(David) Update this value, if needed 
-	private final double START_MAX_OVERHEAD = (float) 0.1; // Maximum accepted Overhead (#shed/#processed)
-	private final long SMOOTH_FACTOR = 5;   // Smooth out the exponential decay.
-	// Looking at the function we can see where that at 22 it reaches the overhead of 0.001.
-	// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
+	private final long MAX_SHEDDING_THRESHOLD = 512 * 1024 * 1024;  // TODO(David) Update this value, if needed
+	
+	/** Maximum accepted Overhead (#shed/#processed). */
+	private final double START_MAX_OVERHEAD = (float) 0.1; 
+	
+	/** Smooth out the exponential decay. */
+	private final long SMOOTH_FACTOR = 5;   
+	
+	/** 
+	 *  Looking at the function we can see where that at 22 it reaches the overhead of 0.001. 
+	 *  https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay.
+	 */
 	private final int MAX_GCS =  23; // TODO(David) Update this value, if needed
 	
 	private AtomicLong threshold;
@@ -26,7 +33,7 @@ public class SheddingThreshold {
 		// Calculating the maximum overhead via exponential decay
 		// https://en.wikipedia.org/wiki/Exponential_decay
 		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
-		double maxOverhead = (START_MAX_OVERHEAD / Math.exp(SMOOTH_FACTOR* numGCs));
+		double maxOverhead = (START_MAX_OVERHEAD / Math.exp(SMOOTH_FACTOR * numGCs));
 		// That way we avoid h.numGCs unbound growth.
 		numGCs = Math.min(MAX_GCS, numGCs + 1);
 		
