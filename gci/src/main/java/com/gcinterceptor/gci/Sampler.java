@@ -1,20 +1,21 @@
-package com.danielfireman.gci;
+package com.gcinterceptor.gci;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Sampler {
 	// Default sample rate should be fairly small, so big requests get checked up quickly.
-	private final int DEFAULT_SAMPLE_RATE = 10; // TODO(David) Update this value, if needed
+	private final int DEFAULT_SAMPLE_RATE = 64; // TODO(David) Update this value, if needed
 	// Max sample rate can not be very big because of peaks.
 	// The algorithm is fairly conservative, but we never know.
-	private final int MAX_SAMPLE_RATE = 30; // TODO(David) Update this value, if needed
+	private final int MAX_SAMPLE_RATE = 512; // TODO(David) Update this value, if needed
 	
 	private int next;
 	private int[] pastSampleRates;
-	private AtomicInteger currentSampleSize; 
+	private AtomicInteger currentSampleRate; 
 
-	public Sampler(int historySize) {
-		currentSampleSize = new AtomicInteger(DEFAULT_SAMPLE_RATE); 
+	Sampler(int historySize) {
+		currentSampleRate = new AtomicInteger(DEFAULT_SAMPLE_RATE); 
 		pastSampleRates = new int[historySize];
 		for (int i = 0; i < historySize; i++) { 
 			pastSampleRates[i] = Integer.MAX_VALUE;
@@ -22,7 +23,7 @@ public class Sampler {
 	}
 	
 	public int getCurrentSampleSize() {
-		return currentSampleSize.get();
+		return currentSampleRate.get();
 	}
 	
 	public void updateSampler(int lastFinished) { 
@@ -31,17 +32,15 @@ public class Sampler {
 		next = (next + 1) % pastSampleRates.length;
 		
 		// Get minimum value.
-		int min = Integer.MIN_VALUE;
-		for (int i = 0; i < pastSampleRates.length; i++) {
-			if (min < pastSampleRates[i]) {
-				min = pastSampleRates[i];
-			}
-		}
+		int min = Arrays.stream(pastSampleRates).min().getAsInt();
 
 		// Update currentSampleSize
-		if (min > 0) {
-			Math.min(min, MAX_SAMPLE_RATE);
-			currentSampleSize.set(min);
+		if (min > 0) {			
+			if (min > MAX_SAMPLE_RATE) { // NOTE: we could use math.Min. We tried that, but it leads to a lot of type casting.
+				currentSampleRate.set(MAX_SAMPLE_RATE);
+			} else {
+				currentSampleRate.set(min);
+			}
 		}
 		
 	}
