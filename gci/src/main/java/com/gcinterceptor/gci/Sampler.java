@@ -27,14 +27,11 @@ class Sampler {
 	}
 	
 	void updateSampler(int lastFinished) { 
-		// Update history.
 		pastSampleRates[next] = lastFinished;
 		next = (next + 1) % pastSampleRates.length;
 		int min = Arrays.stream(pastSampleRates).min().getAsInt();
 		if (min > 0) {	
 			currentSampleRate.set(Math.min(min, MAX_SAMPLE_RATE));
 		}
-		
 	}
-
 }
