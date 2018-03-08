@@ -2,7 +2,10 @@ package com.gcinterceptor.gci;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SheddingThreshold {
+class SheddingThreshold {
+	/**
+	 * Default heap threshold rate should be fairly small, so the first collection happens quickly.
+	 */
 	private final long MIN_SHEDDING_THRESHOLD = 32 * 1024 * 1024; // TODO(David) Update this value, if needed
 	private final long MAX_SHEDDING_THRESHOLD = 512 * 1024 * 1024;  // TODO(David) Update this value, if needed
 	
@@ -21,15 +24,15 @@ public class SheddingThreshold {
 	private AtomicLong threshold;
 	private int numGCs;
 	
-	public SheddingThreshold() {
+	SheddingThreshold() {
 		threshold = new AtomicLong((long) (MIN_SHEDDING_THRESHOLD + (Math.random() * MIN_SHEDDING_THRESHOLD)));
 	}
 	
-	public double get() {
+	double get() {
 		return threshold.get();
 	}
 	
-	public void update(int alloc, int finished, int shedRequests) {
+	void update(int alloc, int finished, int shedRequests) {
 		// Calculating the maximum overhead via exponential decay
 		// https://en.wikipedia.org/wiki/Exponential_decay
 		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
