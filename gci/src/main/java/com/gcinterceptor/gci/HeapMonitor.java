@@ -11,7 +11,6 @@ class HeapMonitor {
 
 	HeapMonitor() {
 		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-			// TODO(danielfireman): Generalize this to other JVM versions.
 			if (pool.getName().contains("Eden")) {
 				youngPool = pool;
 				break;
@@ -21,17 +20,17 @@ class HeapMonitor {
 		collector = () -> System.gc();
 	}
 
-	Long getUsage() {
+	private long getUsage() {
 		return  this.youngPool.getUsage().getUsed();
 	}
 
-	Long AllocSinceLastGC() {
+	long getHeapUsageSinceLastGC() {
 		lastUsed = getUsage() - lastAlloc;
 		return lastUsed;
 	}
-	
-	Long collect() {
-		Long lastAllocAux = AllocSinceLastGC();
+
+	long collect() {
+		long lastAllocAux = getHeapUsageSinceLastGC();
 		collector.collect();
 		lastAlloc = getUsage();
 		return lastAllocAux;
