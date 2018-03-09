@@ -2,6 +2,7 @@ package com.gcinterceptor.gci;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 class Sampler {
 	// Default sample rate should be fairly small, so big requests get checked up quickly.
@@ -11,25 +12,25 @@ class Sampler {
 	private final int MAX_SAMPLE_RATE = 512; // TODO(David) Update this value, if needed
 	
 	private int next;
-	private int[] pastSampleRates;
-	private AtomicInteger currentSampleRate; 
+	private long[] pastSampleRates;
+	private AtomicLong currentSampleRate; 
 
 	Sampler(int historySize) {
-		currentSampleRate = new AtomicInteger(DEFAULT_SAMPLE_RATE); 
-		pastSampleRates = new int[historySize];
+		currentSampleRate = new AtomicLong(DEFAULT_SAMPLE_RATE); 
+		pastSampleRates = new long[historySize];
 		for (int i = 0; i < historySize; i++) { 
 			pastSampleRates[i] = Integer.MAX_VALUE;
 		}
 	}
 	
-	int getCurrentSampleSize() {
+	long getCurrentSampleSize() {
 		return currentSampleRate.get();
 	}
 	
-	void updateSampler(int lastFinished) { 
-		pastSampleRates[next] = lastFinished;
+	void update(long finished) { 
+		pastSampleRates[next] = finished;
 		next = (next + 1) % pastSampleRates.length;
-		int min = Arrays.stream(pastSampleRates).min().getAsInt();
+		long min = Arrays.stream(pastSampleRates).min().getAsLong();
 		if (min > 0) {	
 			currentSampleRate.set(Math.min(min, MAX_SAMPLE_RATE));
 		}

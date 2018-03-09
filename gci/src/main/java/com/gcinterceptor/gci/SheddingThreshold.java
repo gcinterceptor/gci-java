@@ -40,7 +40,7 @@ class SheddingThreshold {
 		return threshold.get();
 	}
 
-	void update(int alloc, int finished, int shedRequests) {
+	void update(long alloc, long finished, long shedRequests) {
 		// Calculating the maximum overhead via exponential decay
 		// https://en.wikipedia.org/wiki/Exponential_decay
 		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
