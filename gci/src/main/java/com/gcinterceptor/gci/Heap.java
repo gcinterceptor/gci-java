@@ -3,13 +3,12 @@ package com.gcinterceptor.gci;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 
-class HeapMonitor {
+class Heap {
 	private MemoryPoolMXBean youngPool;
-	private GarbageCollector collector;
 	private long lastAlloc; 
 	private long lastUsed;
 
-	HeapMonitor() {
+	Heap() {
 		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
 			if (pool.getName().contains("Eden")) {
 				youngPool = pool;
@@ -17,7 +16,6 @@ class HeapMonitor {
 			}
 		}
 		lastAlloc = getUsage();
-		collector = () -> System.gc();
 	}
 
 	private long getUsage() {
@@ -31,7 +29,7 @@ class HeapMonitor {
 
 	long collect() {
 		long lastAllocAux = getHeapUsageSinceLastGC();
-		collector.collect();
+		System.gc();
 		lastAlloc = getUsage();
 		return lastAllocAux;
 	}
