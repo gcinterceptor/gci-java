@@ -3,13 +3,13 @@ package com.gcinterceptor.gci;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 
-public class HeapMonitor {
+class HeapMonitor {
 	private MemoryPoolMXBean youngPool;
 	private GarbageCollector collector;
 	private long lastAlloc; 
 	private long lastUsed;
 
-	public HeapMonitor() {
+	HeapMonitor() {
 		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
 			// TODO(danielfireman): Generalize this to other JVM versions.
 			if (pool.getName().contains("Eden")) {
