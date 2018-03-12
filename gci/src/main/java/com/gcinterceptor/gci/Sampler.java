@@ -6,10 +6,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 class Sampler {
 	// Default sample rate should be fairly small, so big requests get checked up quickly.
-	private final int DEFAULT_SAMPLE_RATE = 64; // TODO(David) Update this value, if needed
+	private final int DEFAULT_SAMPLE_RATE = 64;
 	// Max sample rate can not be very big because of peaks.
 	// The algorithm is fairly conservative, but we never know.
-	private final int MAX_SAMPLE_RATE = 512; // TODO(David) Update this value, if needed
+	private final int MAX_SAMPLE_RATE = 512;
 	
 	private int next;
 	private long[] pastSampleRates;
