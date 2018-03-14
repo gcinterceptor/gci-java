@@ -15,7 +15,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.danielfireman</groupId>
+            <groupId>com.gcinterceptor</groupId>
             <artifactId>gci</artifactId>
             <version>0.1</version>
         </dependency>
