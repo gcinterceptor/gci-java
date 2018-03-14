@@ -24,6 +24,7 @@ public class SpringGciInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private GarbageCollectorControlInterceptor gci;
 
+    @Override
     public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
