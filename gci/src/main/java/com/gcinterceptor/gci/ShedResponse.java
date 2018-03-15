@@ -4,13 +4,13 @@ package com.gcinterceptor.gci;
  * Holds the response of processing a single request from
  * {@code GarbageCollectorControlInterceptor}.
  */
-class ShedResponse {
+public class ShedResponse {
 	/**
 	 * Whether the request should be shed.
 	 */
-	boolean shouldShed;
+	public boolean shouldShed;
 
-	ShedResponse(boolean shouldShed) {
+	public ShedResponse(boolean shouldShed) {
 		this.shouldShed = shouldShed;
 	}
 }
