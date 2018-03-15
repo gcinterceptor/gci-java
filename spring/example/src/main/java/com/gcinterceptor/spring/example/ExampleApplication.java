@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 @Import(SpringGcInterceptorConfiguration.class)
@@ -21,8 +21,8 @@ public class ExampleApplication {
 	}
 
 	@Bean
-	public WebMvcConfigurerAdapter adapter() {
-		return new WebMvcConfigurerAdapter() {
+	public WebMvcConfigurer adapter() {
+		return new WebMvcConfigurer() {
 			@Autowired
 			SpringGcInterceptor gci;
 
