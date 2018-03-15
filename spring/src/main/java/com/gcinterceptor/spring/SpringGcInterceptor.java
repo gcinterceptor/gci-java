@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 @Configuration
 public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 
-    private static final Log log = LogFactory.getLog(SpringGcInterceptor.class);
     private static final String SHED_RESPONSE_OBJ_NAME = "sr";
 
     @Autowired
