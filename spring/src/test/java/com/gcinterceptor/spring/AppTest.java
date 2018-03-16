@@ -1,4 +1,4 @@
-package com.gcinterceptor.gci.spring;
+package com.gcinterceptor.spring;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
