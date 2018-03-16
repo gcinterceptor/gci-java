@@ -17,10 +17,16 @@ import com.gcinterceptor.spring.SpringGcInterceptorConfiguration;
 @Import(SpringGcInterceptorConfiguration.class)
 public class MsgPush {
 	private static final boolean USE_GCI = Boolean.parseBoolean(System.getenv("use_gci"));
-	private static int MSG_SIZE = Integer.parseInt(System.getenv("msg_size"));
-	private static int WINDOWS_SIZE = Integer.parseInt(System.getenv("windows_size"));
+	private static int MSG_SIZE;
+	private static int WINDOW_SIZE;
 	private static byte[][] buffer;
 	private static int msgCount;
+
+	static {
+		WINDOW_SIZE = Integer.parseInt(System.getenv("window_size"));
+		MSG_SIZE = Integer.parseInt(System.getenv("msg_size"));
+		buffer = new byte[WINDOW_SIZE][MSG_SIZE];
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(MsgPush.class, args);
@@ -31,7 +37,7 @@ public class MsgPush {
 		return new WebMvcConfigurer() {
 			@Autowired
 			SpringGcInterceptor gci;
-			
+
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				if (USE_GCI) {
@@ -45,20 +51,16 @@ public class MsgPush {
 	public static class HelloController {
 		@RequestMapping("/")
 		public void index() throws InterruptedException {
-			buffer = new byte[WINDOWS_SIZE][MSG_SIZE];
 			byte[] byteArray = new byte[MSG_SIZE];
 			for (int i = 0; i < MSG_SIZE; i++) {
-				byteArray[i] = Byte.MAX_VALUE;
+				byteArray[i] = (byte) i;
 			}
-			buffer[msgCount++ % WINDOWS_SIZE] = byteArray;
+			buffer[msgCount++ % WINDOW_SIZE] = byteArray;
 
 			Thread.sleep(10000);
 			long t = 10000 + System.currentTimeMillis();
 			while (t > System.currentTimeMillis()) {
 			}
-			
 		}
 	}
-
-
 }
