@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GarbageCollectorControlInterceptor {
 	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
+	private static final boolean DEBUG_GCI = Boolean.parseBoolean(System.getenv("debug_gci"));
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
@@ -85,6 +86,10 @@ public class GarbageCollectorControlInterceptor {
 					sampler.update(finished.get());
 					sheddingThreshold.update(alloc, finished.get(), shedRequests.get());
 
+					if (DEBUG_GCI) {
+						System.out.println(finished.get() + "," + shedRequests.get());						
+					}
+					
 					// Zeroing counters.
 					incoming.set(0); 
 					finished.set(0); 
@@ -92,6 +97,7 @@ public class GarbageCollectorControlInterceptor {
 
 					// Finishing unavailability period.
 					doingGC.set(false);
+			
 					
 				});
 				return shed();
