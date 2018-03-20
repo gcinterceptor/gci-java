@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GarbageCollectorControlInterceptor {
 	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
-	private static final boolean DEBUG_GCI;
+	private static final boolean DEBUG_GCI = Boolean.parseBoolean(System.getenv("debug_gci"));
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
@@ -19,10 +19,6 @@ public class GarbageCollectorControlInterceptor {
 	private SheddingThreshold sheddingThreshold;
 	private Sampler sampler;
 	private Executor executor;
-	
-	static {
-		DEBUG_GCI = Boolean.parseBoolean(System.getenv("debug_gci"));
-	}
 	
 	/**
 	 * Creates a new instance of {@code GarbageCollectorControlInterceptor}
