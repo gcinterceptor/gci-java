@@ -13,7 +13,7 @@ public class GarbageCollectorControlInterceptor {
 	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
 	private static final boolean DEBUG_GCI = Boolean.parseBoolean(System.getenv("debug_gci"));
-	private static final String CSV_FILE_NAME = System.getenv("csv_file_name");
+	private String csv_file_name;
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
@@ -42,6 +42,7 @@ public class GarbageCollectorControlInterceptor {
 		this.sheddingThreshold = new SheddingThreshold();
 		
 		if (DEBUG_GCI) {
+			csv_file_name = System.getenv("csv_file_name");
 			this.saveInCSV("finished,shed");
 		}
 		
@@ -71,7 +72,7 @@ public class GarbageCollectorControlInterceptor {
 		BufferedWriter bw = null;
 
 		try {
-			fw = new FileWriter(CSV_FILE_NAME, true);
+			fw = new FileWriter(csv_file_name, true);
 			bw = new BufferedWriter(fw);
 			bw.write(line + System.lineSeparator());
 			bw.flush();
