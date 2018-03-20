@@ -35,7 +35,8 @@ public class GarbageCollectorControlInterceptor {
 		this.doingGC = new AtomicBoolean(false);
 		this.incoming = new AtomicLong();
 		this.finished = new AtomicLong();
-		this.shedRequests = new AtomicLong();;
+		this.shedRequests = new AtomicLong();
+		this.sheddingThreshold = new SheddingThreshold();
 	}
 
 	/**
