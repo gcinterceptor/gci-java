@@ -1,5 +1,7 @@
 package com.gcinterceptor.core;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.concurrent.Executor;
@@ -11,6 +13,7 @@ public class GarbageCollectorControlInterceptor {
 	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
 	private static final boolean DEBUG_GCI = Boolean.parseBoolean(System.getenv("debug_gci"));
+	private static final String CSV_FILE_NAME = System.getenv("csv_file_name");
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
@@ -37,6 +40,11 @@ public class GarbageCollectorControlInterceptor {
 		this.finished = new AtomicLong();
 		this.shedRequests = new AtomicLong();
 		this.sheddingThreshold = new SheddingThreshold();
+		
+		if (DEBUG_GCI) {
+			this.saveInCSV("finished,shed");
+		}
+		
 	}
 
 	/**
@@ -58,6 +66,30 @@ public class GarbageCollectorControlInterceptor {
 		return new ShedResponse(true);
 	}
 
+	public void saveInCSV(String line) {
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+
+		try {
+			fw = new FileWriter(CSV_FILE_NAME, true);
+			bw = new BufferedWriter(fw);
+			bw.write(line + System.lineSeparator());
+			bw.flush();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		} finally {
+			if (bw != null) {
+				try {
+					bw.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public ShedResponse before() {
 		// The service is unavailable.
 		if (doingGC.get()) {
@@ -88,7 +120,7 @@ public class GarbageCollectorControlInterceptor {
 					sheddingThreshold.update(alloc, finished.get(), shedRequests.get());
 
 					if (DEBUG_GCI) {
-						System.out.println(finished.get() + "," + shedRequests.get());						
+						this.saveInCSV(finished.get() + "," + shedRequests.get());
 					}
 					
 					// Zeroing counters.
@@ -119,4 +151,6 @@ public class GarbageCollectorControlInterceptor {
 			finished.incrementAndGet();
 		}
 	}
+	
+
 }
