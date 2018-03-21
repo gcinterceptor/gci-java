@@ -51,7 +51,7 @@ public class GarbageCollectorControlInterceptor {
 		try {
 			bw = new BufferedWriter(new FileWriter(SHED_RATIO_CSV_FILE, true));
 		} catch (IOException e) {
-			System.out.println(
+			System.err.println(
 					"GarbageCollectorControlInterceptor had problems to be initiated. May be the file can't be opened or created.");
 		}
 
@@ -61,7 +61,7 @@ public class GarbageCollectorControlInterceptor {
 					bw.flush();
 					bw.close();
 				} catch (IOException e) {
-					System.out.println("GarbageCollectorControlInterceptor had problems to flush data or close the BufferedWriter.");
+					System.err.println("GarbageCollectorControlInterceptor had problems to flush data or close the BufferedWriter.");
 				}
 			}
 		});
@@ -92,7 +92,7 @@ public class GarbageCollectorControlInterceptor {
 		try {
 			bw.write(line + System.lineSeparator());
 		} catch (Exception e) {
-			System.out.println("GarbageCollectorControlInterceptor had problems to write data.");
+			System.err.println("GarbageCollectorControlInterceptor had problems to write data.");
 		}
 	}
 
