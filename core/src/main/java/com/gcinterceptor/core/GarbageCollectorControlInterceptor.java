@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GarbageCollectorControlInterceptor {
 	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
-	private static final String SHED_RATIO_CSV_FILE = System.getenv("shed_ratio_csv_file");
+	private static final String SHED_RATIO_CSV_FILE = System.getenv("SHED_RATIO_CSV_FILE");
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
