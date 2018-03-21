@@ -58,9 +58,10 @@ public class GarbageCollectorControlInterceptor {
 		Runtime.getRuntime().addShutdownHook(new Thread() { // Ensure that the file will be closed at the end.
 			public void run() {
 				try {
+					bw.flush();
 					bw.close();
 				} catch (IOException e) {
-					System.out.println("GarbageCollectorControlInterceptor had problems to close the BufferedWriter.");
+					System.out.println("GarbageCollectorControlInterceptor had problems to flush data or close the BufferedWriter.");
 				}
 			}
 		});
@@ -90,9 +91,8 @@ public class GarbageCollectorControlInterceptor {
 	private void saveInCSV(String line) {
 		try {
 			bw.write(line + System.lineSeparator());
-			bw.flush();
 		} catch (Exception e) {
-			System.out.println("GarbageCollectorControlInterceptor had problems to write or flush data.");
+			System.out.println("GarbageCollectorControlInterceptor had problems to write data.");
 		}
 	}
 
