@@ -130,8 +130,6 @@ public class GarbageCollectorControlInterceptor {
 						writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests.get()));
 					}
 
-					System.out.println(finished.get() + "," + shedRequests.get());
-
 					// Zeroing counters.
 					incoming.set(0);
 					finished.set(0);
