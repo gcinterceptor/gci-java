@@ -16,15 +16,15 @@ import com.gcinterceptor.spring.SpringGcInterceptorConfiguration;
 @SpringBootApplication
 @Import(SpringGcInterceptorConfiguration.class)
 public class MsgPush {
-	private static final boolean USE_GCI = Boolean.parseBoolean(System.getenv("use_gci"));
+	private static final boolean USE_GCI = Boolean.parseBoolean(System.getenv("USE_GCI"));
 	private static int MSG_SIZE;
 	private static int WINDOW_SIZE;
 	private static byte[][] buffer;
 	private static int msgCount;
 
 	static {
-		WINDOW_SIZE = Integer.parseInt(System.getenv("window_size"));
-		MSG_SIZE = Integer.parseInt(System.getenv("msg_size"));
+		WINDOW_SIZE = Integer.parseInt(System.getenv("WINDOW_SIZE"));
+		MSG_SIZE = Integer.parseInt(System.getenv("MSG_SIZE"));
 		buffer = new byte[WINDOW_SIZE][MSG_SIZE];
 	}
 
