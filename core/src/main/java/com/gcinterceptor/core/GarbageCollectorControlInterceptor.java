@@ -52,21 +52,20 @@ public class GarbageCollectorControlInterceptor {
 			bw = new BufferedWriter(new FileWriter(SHED_RATIO_CSV_FILE, true));
 		} catch (IOException e) {
 			System.err.println(
-					"GarbageCollectorControlInterceptor had problems to be initiated. May be the file can't be opened or created.");
+					"IOException! GarbageCollectorControlInterceptor had problems to be initiated. Maybe the file can't be opened or created.");
 		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread() { // Ensure that the file will be closed at the end.
 			public void run() {
 				try {
-					bw.flush();
 					bw.close();
 				} catch (IOException e) {
-					System.err.println("GarbageCollectorControlInterceptor had problems to flush data or close the BufferedWriter.");
+					System.err.println("IOException! GarbageCollectorControlInterceptor had problems to close the BufferedWriter. It means that an I/O problem error has occurred.");
 				}
 			}
 		});
 
-		this.saveInCSV("finished,shed");
+		writeLine("finished", "shed");
 	}
 
 	/**
@@ -87,12 +86,12 @@ public class GarbageCollectorControlInterceptor {
 		shedRequests.incrementAndGet();
 		return new ShedResponse(true);
 	}
-
-	private void saveInCSV(String line) {
+	
+	private void writeLine(String col1, String col2) {
 		try {
-			bw.write(line + System.lineSeparator());
-		} catch (Exception e) {
-			System.err.println("GarbageCollectorControlInterceptor had problems to write data.");
+			bw.write(col1 + "," + col2 + System.lineSeparator());
+		} catch (IOException e) {
+			System.err.println("IOException! GarbageCollectorControlInterceptor had problems to write data. It means that an I/O error has occurred.");
 		}
 	}
 
@@ -126,7 +125,7 @@ public class GarbageCollectorControlInterceptor {
 					sheddingThreshold.update(alloc, finished.get(), shedRequests.get());
 
 					if (SHED_RATIO_CSV_FILE != null) {
-						this.saveInCSV(finished.get() + "," + shedRequests.get());
+						writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests.get()));
 					}
 
 					// Zeroing counters.
