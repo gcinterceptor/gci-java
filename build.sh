@@ -12,7 +12,7 @@ cd ../
 
 cd msgpush/
 rm -rf target/
-mvn clean compile || exit $?
+mvn clean install || exit $?
 cd ../
 
 
