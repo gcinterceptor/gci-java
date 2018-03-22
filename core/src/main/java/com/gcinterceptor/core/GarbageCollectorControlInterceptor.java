@@ -86,7 +86,7 @@ public class GarbageCollectorControlInterceptor {
 		shedRequests.incrementAndGet();
 		return new ShedResponse(true);
 	}
-	
+
 	private void writeLine(String col1, String col2) {
 		try {
 			bw.write(col1 + "," + col2 + System.lineSeparator());
@@ -106,6 +106,8 @@ public class GarbageCollectorControlInterceptor {
 				// Starting unavailability period.
 				if (doingGC.get()) {
 					return shed();
+				} else {
+					doingGC.set(true);
 				}
 				executor.execute(() -> {
 					// Loop waiting for the queue to get empty.
@@ -127,6 +129,8 @@ public class GarbageCollectorControlInterceptor {
 					if (SHED_RATIO_CSV_FILE != null) {
 						writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests.get()));
 					}
+
+					System.out.println(finished.get() + "," + shedRequests.get());
 
 					// Zeroing counters.
 					incoming.set(0);
