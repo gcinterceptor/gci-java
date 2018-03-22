@@ -1,18 +1,18 @@
 #!/bin/bash
 
 cd core/
-mvn clean
-mvn install
+rm -rf target/
+mvn clean install || exit $?
 cd ../
 
 cd spring/
-mvn clean
-mvn install
+rm -rf target/
+mvn clean install || exit $?
 cd ../
 
 cd msgpush/
-mvn clean
-mvn install
+rm -rf target/
+mvn clean compile || exit $?
 cd ../
 
 
