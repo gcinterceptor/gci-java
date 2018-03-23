@@ -3,7 +3,7 @@ package com.gcinterceptor.core;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 
-class Heap {
+class Heap implements IHeap {
 	private MemoryPoolMXBean youngPool;
 	private long lastAlloc; 
 	private long lastUsed;
@@ -22,12 +22,12 @@ class Heap {
 		return  this.youngPool.getUsage().getUsed();
 	}
 
-	long getHeapUsageSinceLastGC() {
+	public long getHeapUsageSinceLastGC() {
 		lastUsed = getUsage() - lastAlloc;
 		return lastUsed;
 	}
 
-	long collect() {
+	public long collect() {
 		long lastAllocAux = getHeapUsageSinceLastGC();
 		System.gc();
 		lastAlloc = getUsage();
