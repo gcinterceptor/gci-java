@@ -14,7 +14,7 @@ public class GarbageCollectorControlInterceptorTest {
 		FakeHeap heap = new FakeHeap();
 		GarbageCollectorControlInterceptor GCI = new GarbageCollectorControlInterceptor(heap,
 				Executors.newSingleThreadExecutor());
-		
+
 		ShedResponse sr = GCI.before();
 		assertFalse(sr.shouldShed);
 		assertFalse(heap.hasChecked());
@@ -29,7 +29,7 @@ public class GarbageCollectorControlInterceptorTest {
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
 		GCI.after(sr);
-		
+
 		heap.resetFlags();
 		heap.fillMemory();
 
@@ -40,59 +40,59 @@ public class GarbageCollectorControlInterceptorTest {
 		assertFalse(sr.shouldShed);
 		assertFalse(heap.hasChecked());
 		assertFalse(heap.hasCollected());
-		
+
 		sr = GCI.before();
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
-		
+
 		GCI.after(sr);
 		Thread.sleep(10);
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertTrue(heap.hasCollected());
-		
+
 		heap.resetFlags();
 		heap.fillMemory();
-		
+
 	}
 
-}
+	private class FakeHeap implements IHeap {
+		private boolean hasCollected;
+		private boolean hasChecked;
+		private long alloc;
 
-class FakeHeap implements IHeap {
-	private boolean hasCollected;
-	private boolean hasChecked;
-	private long alloc;
+		public long getHeapUsageSinceLastGC() {
+			hasChecked = true;
+			return alloc;
+		}
 
-	public long getHeapUsageSinceLastGC() {
-		hasChecked = true;
-		return alloc;
+		public long collect() {
+			hasCollected = true;
+			return alloc;
+		}
+
+		boolean hasChecked() {
+			return hasChecked;
+		}
+
+		boolean hasCollected() {
+			return hasCollected;
+		}
+
+		void resetFlags() {
+			hasChecked = false;
+			hasCollected = false;
+		}
+
+		void fillMemory() {
+			alloc = Long.MAX_VALUE;
+		}
+
+		void cleanMemory() {
+			alloc = 0;
+		}
+
 	}
 
-	public long collect() {
-		hasCollected = true;
-		return alloc;
-	}
-
-	boolean hasChecked() {
-		return hasChecked;
-	}
-	
-	boolean hasCollected() {
-		return hasCollected;
-	}
-	
-	void resetFlags() {
-		hasChecked = false;
-		hasCollected = false;
-	}
-	
-	void fillMemory() {
-		alloc = Long.MAX_VALUE;
-	}
-	
-	void cleanMemory() {
-		alloc = 0;
-	}
-	
 }
