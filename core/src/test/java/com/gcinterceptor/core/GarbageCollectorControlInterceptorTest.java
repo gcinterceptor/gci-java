@@ -15,13 +15,13 @@ public class GarbageCollectorControlInterceptorTest {
 		GarbageCollectorControlInterceptor GCI = new GarbageCollectorControlInterceptor(heap,
 				Executors.newSingleThreadExecutor());
 
-		ShedResponse sr = GCI.before();
-		assertFalse(sr.shouldShed);
-		assertFalse(heap.hasChecked());
-		assertFalse(heap.hasCollected());
-		GCI.after(sr);
-		for (int i = 2; i <= 63; i++) { // The default sample size is 64. So, we want call before 63 times...
+		ShedResponse sr = null;
+		for (int i = 1; i <= 63; i++) { // The default sample size is 64. So, we want call before 63 times...
 			sr = GCI.before();
+			assertFalse(sr.shouldShed);
+			assertFalse(heap.hasChecked()); // Note that we can do it outside the loop, but here we can find out which
+											// interaction fail.
+			assertFalse(heap.hasCollected()); // Same here...
 			GCI.after(sr);
 		}
 		sr = GCI.before();
@@ -32,29 +32,56 @@ public class GarbageCollectorControlInterceptorTest {
 
 		heap.resetFlags();
 		heap.fillMemory();
-
-		for (int i = 1; i <= 63; i++) { // The default sample size still 64 and now we want call before 63 times!
+		for (int i = 1; i <= 63; i++) {
 			sr = GCI.before();
+			assertFalse(sr.shouldShed);
+			assertFalse(heap.hasChecked());
+			assertFalse(heap.hasCollected());
 			GCI.after(sr);
 		}
-		assertFalse(sr.shouldShed);
-		assertFalse(heap.hasChecked());
-		assertFalse(heap.hasCollected());
-
 		sr = GCI.before();
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
-
 		GCI.after(sr);
-		Thread.sleep(10);
+		Thread.sleep(15);
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertTrue(heap.hasCollected());
 
 		heap.resetFlags();
-		heap.fillMemory();
+		for (int i = 1; i <= 126; i++) {
+			sr = GCI.before();
+			assertFalse(sr.shouldShed);
+			assertFalse(heap.hasChecked());
+			assertFalse(heap.hasCollected());
+			GCI.after(sr);
+		}
+		sr = GCI.before();
+		assertFalse(sr.shouldShed);
+		assertTrue(heap.hasChecked());
+		assertFalse(heap.hasCollected());
+		GCI.after(sr);
 
+		heap.resetFlags();
+		heap.fillMemory();
+		for (int i = 1; i <= 126; i++) {
+			sr = GCI.before();
+			assertFalse(sr.shouldShed);
+			assertFalse(heap.hasChecked());
+			assertFalse(heap.hasCollected());
+			GCI.after(sr);
+		}
+		sr = GCI.before();
+		assertTrue(sr.shouldShed);
+		assertTrue(heap.hasChecked());
+		assertFalse(heap.hasCollected());
+		GCI.after(sr);
+		Thread.sleep(15);
+		assertTrue(sr.shouldShed);
+		assertTrue(heap.hasChecked());
+		assertTrue(heap.hasCollected());
+		
 	}
 
 	private class FakeHeap implements IHeap {
@@ -69,6 +96,7 @@ public class GarbageCollectorControlInterceptorTest {
 
 		public long collect() {
 			hasCollected = true;
+			cleanMemory();
 			return alloc;
 		}
 
