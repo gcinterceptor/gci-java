@@ -95,6 +95,10 @@ public class GarbageCollectorControlInterceptor {
 		}
 	}
 
+	boolean doingGC() {
+		return doingGC.get();
+	}
+	
 	public ShedResponse before() {
 		// The service is unavailable.
 		if (doingGC.get()) {
