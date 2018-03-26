@@ -95,7 +95,7 @@ public class GarbageCollectorControlInterceptor {
 		}
 	}
 
-	public boolean doingGC() {
+	boolean doingGC() {
 		return doingGC.get();
 	}
 	
