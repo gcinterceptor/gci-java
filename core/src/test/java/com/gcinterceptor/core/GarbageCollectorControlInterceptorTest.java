@@ -27,7 +27,7 @@ public class GarbageCollectorControlInterceptorTest {
 		sr = GCI.before();
 		assertFalse(sr.shouldShed);
 		assertTrue(heap.hasChecked()); // That the 64º before call, it should have already checked.
-		assertFalse(heap.hasCollected()); 
+		assertFalse(heap.hasCollected());
 		GCI.after(sr);
 
 		heap.resetFlags();
@@ -40,14 +40,20 @@ public class GarbageCollectorControlInterceptorTest {
 			GCI.after(sr);
 		}
 		sr = GCI.before();
-		assertTrue(sr.shouldShed); // We have call before 127 times and now the heap is full. ((127 + 1) % 64 = 0. See GarbageCollectorControlInterceptor.)
+		assertTrue(sr.shouldShed); // We have call before 127 times and now the heap is full. ((127 + 1) % 64 = 0.
+									// See GarbageCollectorControlInterceptor.)
 		assertTrue(heap.hasChecked());
-		assertFalse(heap.hasCollected()); // Since we call before 127 times, but after only 126, there is one "request remaining" in queue. 
-		GCI.after(sr); 
-		Thread.sleep(15); // After sending the last request, we'll wait time enough to finish the shedding flow.
-		assertTrue(sr.shouldShed);
+		assertFalse(heap.hasCollected()); // Since we call before 127 times, but after only 126, there is one "request
+											// remaining" in queue.
+		GCI.after(sr);
+
+		while (GCI.doingGC()) {
+			Thread.sleep(5); // After sending the last request, we'll wait time enough to finish the shedding
+								// flow.
+		}
+
 		assertTrue(heap.hasChecked());
-		assertTrue(heap.hasCollected()); 
+		assertTrue(heap.hasCollected());
 
 		heap.resetFlags(); // Reseting the flags to do the same as before.
 		for (int i = 1; i <= 126; i++) { // It is 126 because sampler was updated.
@@ -77,24 +83,26 @@ public class GarbageCollectorControlInterceptorTest {
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
 		GCI.after(sr);
-		Thread.sleep(15);
-		assertTrue(sr.shouldShed);
+
+		while (GCI.doingGC()) {
+			Thread.sleep(5);
+		}
+
 		assertTrue(heap.hasChecked());
 		assertTrue(heap.hasCollected());
-
 	}
 
-	private class FakeHeap implements IHeap {
+	private class FakeHeap extends Heap {
 		private boolean hasCollected;
 		private boolean hasChecked;
 		private long alloc;
 
-		public long getHeapUsageSinceLastGC() {
+		long getHeapUsageSinceLastGC() {
 			hasChecked = true;
 			return alloc;
 		}
 
-		public long collect() {
+		long collect() {
 			hasCollected = true;
 			cleanMemory();
 			return alloc;
@@ -120,7 +128,5 @@ public class GarbageCollectorControlInterceptorTest {
 		void cleanMemory() {
 			alloc = 0;
 		}
-
 	}
-
 }

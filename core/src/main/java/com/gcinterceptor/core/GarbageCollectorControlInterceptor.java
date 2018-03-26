@@ -18,7 +18,7 @@ public class GarbageCollectorControlInterceptor {
 	private AtomicLong incoming;
 	private AtomicLong finished;
 	private AtomicLong shedRequests;
-	private IHeap monitor;
+	private Heap monitor;
 	private SheddingThreshold sheddingThreshold;
 	private Sampler sampler;
 	private Executor executor;
@@ -32,7 +32,7 @@ public class GarbageCollectorControlInterceptor {
 	 * @param executor
 	 *            thread pool used to trigger/control garbage collection.
 	 */
-	public GarbageCollectorControlInterceptor(IHeap monitor, Executor executor) {
+	public GarbageCollectorControlInterceptor(Heap monitor, Executor executor) {
 		this.monitor = monitor;
 		this.executor = executor;
 		this.sampler = new Sampler(SAMPLE_HISTORY_SIZE);
@@ -95,6 +95,10 @@ public class GarbageCollectorControlInterceptor {
 		}
 	}
 
+	public boolean doingGC() {
+		return doingGC.get();
+	}
+	
 	public ShedResponse before() {
 		// The service is unavailable.
 		if (doingGC.get()) {
