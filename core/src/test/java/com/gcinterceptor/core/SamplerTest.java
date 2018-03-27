@@ -30,10 +30,9 @@ public class SamplerTest {
 		sampler.update(MAX_SAMPLE_RATE);			
 		assertEquals(MAX_SAMPLE_RATE, sampler.getCurrentSampleSize());
 		
-		for (int i = 0; i < 5; i++) {
-			sampler.update(DEFAULT_SAMPLE_RATE);
-			assertEquals(DEFAULT_SAMPLE_RATE, sampler.getCurrentSampleSize());
-		}
+		sampler.update(DEFAULT_SAMPLE_RATE);
+		assertEquals(DEFAULT_SAMPLE_RATE, sampler.getCurrentSampleSize());
+
 	}
 	
 	@Test
