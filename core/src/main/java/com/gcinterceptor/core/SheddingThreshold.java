@@ -36,6 +36,10 @@ class SheddingThreshold {
 		threshold = new AtomicLong((long) (MIN_SHEDDING_THRESHOLD + (Math.random() * MIN_SHEDDING_THRESHOLD)));
 	}
 
+	int numGCs() {
+		return numGCs;
+	}
+	
 	double get() {
 		return threshold.get();
 	}
