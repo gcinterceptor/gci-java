@@ -18,7 +18,7 @@ public class SheddingThresholdTest {
 	
 	@Test
 	public void testSheddingThreshold() { 
-		assertEquals(0, st.numbGCs());
+		assertEquals(0, st.numGCs());
 		assertTrue(st.get() >= MIN_SHEDDING_THRESHOLD && st.get() <= 2 * MIN_SHEDDING_THRESHOLD);
 	}
 
@@ -32,7 +32,7 @@ public class SheddingThresholdTest {
 		}
 		st.update(alloc, 1000, 50);
 		assertTrue(st.get() < alloc);
-		assertEquals(st.numbGCs(), MAX_GCS);
+		assertEquals(st.numGCs(), MAX_GCS);
 	}
 	
 	@Test
@@ -42,7 +42,5 @@ public class SheddingThresholdTest {
 
 		st.update(2 * MAX_SHEDDING_THRESHOLD, 1000, 1000);
 		assertTrue(st.get() <= MAX_SHEDDING_THRESHOLD);
-		
 	}
-
 }

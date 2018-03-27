@@ -25,7 +25,5 @@ public class HeapTest {
 			assertEquals(i * arrayCost + alloc, heap.getHeapUsageSinceLastGC());
 		}
 		assertEquals(n * arrayCost + alloc, heap.collect());
-		
 	}
-
 }
