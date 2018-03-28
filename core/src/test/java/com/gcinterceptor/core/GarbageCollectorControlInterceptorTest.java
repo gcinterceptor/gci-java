@@ -11,7 +11,7 @@ public class GarbageCollectorControlInterceptorTest {
 
 	@Test
 	public void testGarbageCollectorControlInterceptorHeapExecutor() throws InterruptedException {
-		FakeHeap heap = new FakeHeap();
+		FakeRuntime heap = new FakeRuntime();
 		GarbageCollectorControlInterceptor GCI = new GarbageCollectorControlInterceptor(heap,
 				Executors.newSingleThreadExecutor());
 
@@ -92,7 +92,7 @@ public class GarbageCollectorControlInterceptorTest {
 		assertTrue(heap.hasCollected());
 	}
 
-	private class FakeHeap extends Heap {
+	private class FakeRuntime extends RuntimeEnvironment {
 		private boolean hasCollected;
 		private boolean hasChecked;
 		private long alloc;
