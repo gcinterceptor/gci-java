@@ -18,7 +18,7 @@ public class GarbageCollectorControlInterceptor {
 	private AtomicLong incoming;
 	private AtomicLong finished;
 	private AtomicLong shedRequests;
-	private Heap monitor;
+	private RuntimeEnvironment runtime;
 	private SheddingThreshold sheddingThreshold;
 	private Sampler sampler;
 	private Executor executor;
@@ -27,13 +27,13 @@ public class GarbageCollectorControlInterceptor {
 	/**
 	 * Creates a new instance of {@code GarbageCollectorControlInterceptor}
 	 *
-	 * @param monitor
+	 * @param runtime
 	 *            {@code HeapMonitor} used to monitoring JVM heap pools.
 	 * @param executor
 	 *            thread pool used to trigger/control garbage collection.
 	 */
-	public GarbageCollectorControlInterceptor(Heap monitor, Executor executor) {
-		this.monitor = monitor;
+	public GarbageCollectorControlInterceptor(RuntimeEnvironment runtime, Executor executor) {
+		this.runtime = runtime;
 		this.executor = executor;
 		this.sampler = new Sampler(SAMPLE_HISTORY_SIZE);
 		this.doingGC = new AtomicBoolean(false);
@@ -72,14 +72,14 @@ public class GarbageCollectorControlInterceptor {
 	 * Creates a new instance of {@code GarbageCollectorControlInterceptor} using
 	 * defaults.
 	 *
-	 * @see Heap
+	 * @see RuntimeEnvironment
 	 * @see System#gc()
 	 * @see Executors#newSingleThreadExecutor()
 	 * @see UnavailabilityDuration
 	 * @see Clock#systemDefaultZone()
 	 */
 	public GarbageCollectorControlInterceptor() {
-		this(new Heap(), Executors.newSingleThreadExecutor());
+		this(new RuntimeEnvironment(), Executors.newSingleThreadExecutor());
 	}
 
 	private ShedResponse shed() {
@@ -106,7 +106,7 @@ public class GarbageCollectorControlInterceptor {
 		}
 
 		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0) {
-			if (monitor.getHeapUsageSinceLastGC() > sheddingThreshold.get()) {
+			if (runtime.getHeapUsageSinceLastGC() > sheddingThreshold.get()) {
 				// Starting unavailability period.
 				if (doingGC.get()) {
 					return shed();
@@ -124,7 +124,7 @@ public class GarbageCollectorControlInterceptor {
 					}
 
 					// Force a garbage collect and keep the memory usage before the collection.
-					long alloc = monitor.collect();
+					long alloc = runtime.collect();
 
 					// Update sampler and ST.
 					sampler.update(finished.get());
