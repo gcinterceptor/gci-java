@@ -2,6 +2,12 @@ sudo: false
 
 language: java
 
+notificaitons:
+  email:
+    recipients: david.quaresma@ccc.ufcg.edu.com
+    on_success: change
+    on_failure: always
+
 script:
  - bash build.sh
 
