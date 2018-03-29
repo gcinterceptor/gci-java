@@ -2,10 +2,9 @@ sudo: false
 
 language: java
 jdk:
+  - openjdk8
   - oraclejdk8
   - oraclejdk9
-  - openjdk8
-  - openjdk9
 
 notificaitons:
   email:
