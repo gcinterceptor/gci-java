@@ -13,6 +13,3 @@ notificaitons:
 
 script:
  - bash build.sh
-
-
-
