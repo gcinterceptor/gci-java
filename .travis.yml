@@ -4,6 +4,8 @@ language: java
 jdk:
   - oraclejdk8
   - oraclejdk9
+  - openjdk8
+  - openjdk9
 
 notificaitons:
   email:
