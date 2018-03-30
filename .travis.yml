@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 
 language: java
 jdk:
@@ -13,3 +13,7 @@ notificaitons:
 
 script:
  - bash build.sh
+
+after_success:
+  - cd core/
+  - mvn clean test saga:coverage coveralls:report
