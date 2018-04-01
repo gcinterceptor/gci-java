@@ -1,0 +1,19 @@
+sudo: true
+
+language: java
+jdk:
+  - oraclejdk8
+  - oraclejdk9
+
+notificaitons:
+  email:
+    recipients: david.quaresma@ccc.ufcg.edu.com
+    on_success: change
+    on_failure: always
+
+script:
+ - bash build.sh
+
+after_success:
+  - cd core/
+  - mvn clean test saga:coverage coveralls:report
