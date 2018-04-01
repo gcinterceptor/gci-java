@@ -46,7 +46,6 @@ public class GarbageCollectorControlInterceptorTest {
 		assertFalse(heap.hasCollected()); // Since we call before 127 times, but after only 126, there is one "request
 											// remaining" in queue.
 		GCI.after(sr);
-
 		while (GCI.doingGC()) {
 			sr = GCI.before();
 			assertTrue(sr.shouldShed);
