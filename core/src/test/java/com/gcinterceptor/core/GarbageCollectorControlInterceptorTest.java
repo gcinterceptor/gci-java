@@ -48,6 +48,8 @@ public class GarbageCollectorControlInterceptorTest {
 		GCI.after(sr);
 
 		while (GCI.doingGC()) {
+			sr = GCI.before();
+			assertTrue(sr.shouldShed);
 			Thread.sleep(5); // After sending the last request, we'll wait time enough to finish the shedding
 								// flow.
 		}
@@ -78,15 +80,17 @@ public class GarbageCollectorControlInterceptorTest {
 			assertFalse(heap.hasCollected());
 			GCI.after(sr);
 		}
-		sr = GCI.before();
+		sr = GCI.before(); 
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
 		GCI.after(sr);
 
 		while (GCI.doingGC()) {
+			sr = GCI.before(); 
+			assertTrue(sr.shouldShed);
 			Thread.sleep(5);
-		}
+		} 
 
 		assertTrue(heap.hasChecked());
 		assertTrue(heap.hasCollected());

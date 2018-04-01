@@ -107,11 +107,13 @@ public class GarbageCollectorControlInterceptor {
 
 		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0) {
 			if (runtime.getHeapUsageSinceLastGC() > sheddingThreshold.get()) {
-				// Starting unavailability period.
-				if (doingGC.get()) {
-					return shed();
-				} else {
-					doingGC.set(true);
+				// Starting unavailability period. 
+				synchronized (this) {
+					if (doingGC.get()) {
+						return shed();
+					} else {
+						doingGC.set(true);
+					}					
 				}
 				executor.execute(() -> {
 					// Loop waiting for the queue to get empty.
