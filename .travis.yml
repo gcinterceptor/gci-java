@@ -16,4 +16,4 @@ script:
 
 after_success:
   - cd core/
-  - mvn clean test saga:coverage coveralls:report
+  - mvn clean test jacoco:report coveralls:report
