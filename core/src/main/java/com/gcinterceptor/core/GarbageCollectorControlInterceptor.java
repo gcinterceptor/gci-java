@@ -111,9 +111,8 @@ public class GarbageCollectorControlInterceptor {
 				synchronized (this) {
 					if (doingGC.get()) {
 						return shed();
-					} else {
-						doingGC.set(true);
-					}					
+					} 
+					doingGC.set(true);
 				}
 				executor.execute(() -> {
 					// Loop waiting for the queue to get empty.

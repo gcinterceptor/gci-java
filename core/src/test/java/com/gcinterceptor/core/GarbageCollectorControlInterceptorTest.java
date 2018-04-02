@@ -12,42 +12,42 @@ public class GarbageCollectorControlInterceptorTest {
 	@Test
 	public void testGarbageCollectorControlInterceptorHeapExecutor() throws InterruptedException {
 		FakeRuntime heap = new FakeRuntime();
-		GarbageCollectorControlInterceptor GCI = new GarbageCollectorControlInterceptor(heap,
+		GarbageCollectorControlInterceptor gci = new GarbageCollectorControlInterceptor(heap,
 				Executors.newSingleThreadExecutor());
 
 		ShedResponse sr = null;
 		for (int i = 1; i <= 63; i++) { // The default sample size is 64. So, we want call before 63 times...
-			sr = GCI.before();
+			sr = gci.before();
 			assertFalse(sr.shouldShed);
 			assertFalse(heap.hasChecked()); // Note that we can do it outside the loop, but here we can find out which
 											// interaction fail.
 			assertFalse(heap.hasCollected()); // Same here...
-			GCI.after(sr);
+			gci.after(sr);
 		}
-		sr = GCI.before();
+		sr = gci.before();
 		assertFalse(sr.shouldShed);
 		assertTrue(heap.hasChecked()); // That the 64º before call, it should have already checked.
 		assertFalse(heap.hasCollected());
-		GCI.after(sr);
+		gci.after(sr);
 
 		heap.resetFlags();
 		heap.fillMemory();
 		for (int i = 1; i <= 63; i++) {
-			sr = GCI.before();
+			sr = gci.before();
 			assertFalse(sr.shouldShed);
 			assertFalse(heap.hasChecked());
 			assertFalse(heap.hasCollected());
-			GCI.after(sr);
+			gci.after(sr);
 		}
-		sr = GCI.before();
+		sr = gci.before();
 		assertTrue(sr.shouldShed); // We have call before 127 times and now the heap is full. ((127 + 1) % 64 = 0.
 									// See GarbageCollectorControlInterceptor.)
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected()); // Since we call before 127 times, but after only 126, there is one "request
 											// remaining" in queue.
-		GCI.after(sr);
-		while (GCI.doingGC()) {
-			sr = GCI.before();
+		gci.after(sr);
+		while (gci.doingGC()) {
+			sr = gci.before();
 			assertTrue(sr.shouldShed);
 			Thread.sleep(5); // After sending the last request, we'll wait time enough to finish the shedding
 								// flow.
@@ -58,35 +58,35 @@ public class GarbageCollectorControlInterceptorTest {
 
 		heap.resetFlags(); // Reseting the flags to do the same as before.
 		for (int i = 1; i <= 126; i++) { // It is 126 because sampler was updated.
-			sr = GCI.before();
+			sr = gci.before();
 			assertFalse(sr.shouldShed);
 			assertFalse(heap.hasChecked());
 			assertFalse(heap.hasCollected());
-			GCI.after(sr);
+			gci.after(sr);
 		}
-		sr = GCI.before();
+		sr = gci.before();
 		assertFalse(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
-		GCI.after(sr);
+		gci.after(sr);
 
 		heap.resetFlags();
 		heap.fillMemory();
 		for (int i = 1; i <= 126; i++) {
-			sr = GCI.before();
+			sr = gci.before();
 			assertFalse(sr.shouldShed);
 			assertFalse(heap.hasChecked());
 			assertFalse(heap.hasCollected());
-			GCI.after(sr);
+			gci.after(sr);
 		}
-		sr = GCI.before(); 
+		sr = gci.before(); 
 		assertTrue(sr.shouldShed);
 		assertTrue(heap.hasChecked());
 		assertFalse(heap.hasCollected());
-		GCI.after(sr);
+		gci.after(sr);
 
-		while (GCI.doingGC()) {
-			sr = GCI.before(); 
+		while (gci.doingGC()) {
+			sr = gci.before(); 
 			assertTrue(sr.shouldShed);
 			Thread.sleep(5);
 		} 
