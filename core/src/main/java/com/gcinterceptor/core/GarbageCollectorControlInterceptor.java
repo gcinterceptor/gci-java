@@ -28,12 +28,13 @@ public class GarbageCollectorControlInterceptor {
 	 * Creates a new instance of {@code GarbageCollectorControlInterceptor}
 	 *
 	 * @param runtime
-	 *            {@code HeapMonitor} used to monitoring JVM heap pools.
+	 *            {@code Runtime} used to interface with JVM heap.
 	 * @param executor
 	 *            thread pool used to trigger/control garbage collection.
 	 */
 	public GarbageCollectorControlInterceptor(RuntimeEnvironment runtime, Executor executor) {
 		this.runtime = runtime;
+
 		this.executor = executor;
 		this.sampler = new Sampler(SAMPLE_HISTORY_SIZE);
 		this.doingGC = new AtomicBoolean(false);
@@ -90,6 +91,7 @@ public class GarbageCollectorControlInterceptor {
 	private void writeLine(String col1, String col2) {
 		try {
 			bw.write(col1 + "," + col2 + System.lineSeparator());
+			bw.flush();
 		} catch (IOException e) {
 			System.err.println("IOException! GarbageCollectorControlInterceptor had problems to write data. It means that an I/O error has occurred.");
 		}
@@ -142,12 +144,10 @@ public class GarbageCollectorControlInterceptor {
 
 					// Finishing unavailability period.
 					doingGC.set(false);
-
 				});
 				return shed();
 			}
 		}
-
 		incoming.incrementAndGet();
 		return new ShedResponse(false);
 	}
@@ -162,5 +162,4 @@ public class GarbageCollectorControlInterceptor {
 			finished.incrementAndGet();
 		}
 	}
-
 }

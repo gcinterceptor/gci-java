@@ -57,8 +57,8 @@ public class MsgPush {
 			}
 			buffer[msgCount++ % WINDOW_SIZE] = byteArray;
 
-			Thread.sleep(10);
-			long t = 10 + System.currentTimeMillis();
+			Thread.sleep(5);
+			long t = 15 + System.currentTimeMillis();
 			while (t > System.currentTimeMillis()) {
 			}
 		}

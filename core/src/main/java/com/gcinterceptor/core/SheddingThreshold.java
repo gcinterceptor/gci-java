@@ -1,39 +1,32 @@
 package com.gcinterceptor.core;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Random;
 
 class SheddingThreshold {
 	/**
-	 * The minimum value of shedding threshold to collect. Default heap threshold rate should
-	 * be fairly small, so the first collection happens quickly.
+	 * The minimum value of shedding threshold to collect.
 	 */
-	private final long MIN_SHEDDING_THRESHOLD = 32 * 1024 * 1024; // TODO(David) Update this value, if needed
+	static final long MIN_SHEDDING_THRESHOLD = 32 * 1024 * 1024;
 
 	/**
 	 * The maximum value of shedding threshold to collect. Default heap threshold rate should
 	 * be not too bigger, aiming at to avoid overflow of memory.
 	 */
-	private final long MAX_SHEDDING_THRESHOLD = 512 * 1024 * 1024; // TODO(David) Update this value, if needed
+	// TODO(danielfireman): Can we get that from the JVM heap configuration?
+	static final long MAX_SHEDDING_THRESHOLD = 256 * 1024 * 1024;
 
-	/** Maximum accepted Overhead (#shed/#processed). */
-	private final double START_MAX_OVERHEAD = (float) 0.1;
-
-	/** Smooth out the exponential decay. */
-	private final long SMOOTH_FACTOR = 5;
-
-	/**
-	 * Is the max number of collects that can be used to calculate the max overhead.
-	 * Looking at the function we can see where that at 22 it reaches the overhead
-	 * of 0.001.
-	 * https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay.
-	 */
-	private final int MAX_GCS = 23; // TODO(David) Update this value, if needed
-
+	private final Random random;
 	private AtomicLong threshold;
 	private int numGCs;
 
 	SheddingThreshold() {
-		threshold = new AtomicLong((long) (MIN_SHEDDING_THRESHOLD + (Math.random() * MIN_SHEDDING_THRESHOLD)));
+		this(System.nanoTime());
+	}
+
+	SheddingThreshold(long seed) {
+		random = new Random(seed);
+		threshold = new AtomicLong((long) (MIN_SHEDDING_THRESHOLD + (random.nextDouble() * MIN_SHEDDING_THRESHOLD)));
 	}
 
 	int numGCs() {
@@ -45,30 +38,36 @@ class SheddingThreshold {
 	}
 
 	void update(long alloc, long finished, long shedRequests) {
-		// Calculating the maximum overhead via exponential decay
-		// https://en.wikipedia.org/wiki/Exponential_decay
-		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
-		double maxOverhead = (START_MAX_OVERHEAD / Math.exp(SMOOTH_FACTOR * numGCs));
-		// That way we avoid h.numGCs unbound growth.
-		numGCs = Math.min(MAX_GCS, numGCs + 1);
-
 		// Updating threshold value.
 		long thresholdCandidate = 0;
 		double overhead = (double) shedRequests / (double) finished;
-		if (overhead > maxOverhead) {
-			thresholdCandidate = (long) (alloc - (Math.random() * MIN_SHEDDING_THRESHOLD));
+		if (overhead > maxOverhead()) {
+			thresholdCandidate = (long) (alloc - (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
 		} else {
-			thresholdCandidate = (long) (alloc + (Math.random() * MIN_SHEDDING_THRESHOLD));
-		}
-
-		// Checking ST bounds.
+			thresholdCandidate = (long) (alloc + (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
+		}	
+		// Restricting bounds.	
 		if (thresholdCandidate <= MIN_SHEDDING_THRESHOLD) {
-			thresholdCandidate = (long) (MIN_SHEDDING_THRESHOLD + (Math.random() * MIN_SHEDDING_THRESHOLD));
+			thresholdCandidate = (long) (MIN_SHEDDING_THRESHOLD + (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
 		} else if (thresholdCandidate >= MAX_SHEDDING_THRESHOLD) {
-			thresholdCandidate = (long) (MAX_SHEDDING_THRESHOLD - (Math.random() * MIN_SHEDDING_THRESHOLD));
+			thresholdCandidate = (long) (MAX_SHEDDING_THRESHOLD - (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
 		}
-
 		threshold.set(thresholdCandidate);
 	}
 
+	// Calculates the maximum overhead when an update happens.
+	// Package-protected for testing purposes.
+	double maxOverhead() {
+		// Calculating the maximum overhead via exponential decay
+		// https://en.wikipedia.org/wiki/Exponential_decay
+		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
+		// Looking at the graph above we can see where that at x=23, the function
+		// reaches the overhead of 0.001.
+		numGCs = Math.min(23, numGCs + 1);
+		return 0.1 / Math.exp(numGCs/5.0);  // 5 is a smooth factor.
+	}
+
+	public String toString() {
+		return "ST: " + threshold.get()/(1024*1024) + " MB";
+	}
 }

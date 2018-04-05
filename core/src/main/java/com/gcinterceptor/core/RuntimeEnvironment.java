@@ -23,10 +23,10 @@ class RuntimeEnvironment {
 	}
 
 	long collect() {
-		long lastAllocAux = getHeapUsageSinceLastGC();
+		long lastUsage = getHeapUsageSinceLastGC();
 		heap.gc();
 		lastAlloc = heap.getUsage();
-		return lastAllocAux;
+		return lastUsage;
 	}
 	
 	static class Heap {
@@ -48,7 +48,5 @@ class RuntimeEnvironment {
 		void gc() {
 			System.gc();
 		}
-		
 	}
-
 }
