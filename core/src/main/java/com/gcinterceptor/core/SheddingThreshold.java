@@ -42,7 +42,8 @@ class SheddingThreshold {
 		long thresholdCandidate = 0;
 		double overhead = (double) shedRequests / (double) finished;
 		if (overhead > maxOverhead()) {
-			thresholdCandidate = (long) (alloc - (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
+			// Agressively descrease if the overhead is bigger than maximum allowed.
+			thresholdCandidate = (long) (alloc - 2*(random.nextDouble() * MIN_SHEDDING_THRESHOLD));
 		} else {
 			thresholdCandidate = (long) (alloc + (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
 		}	
@@ -61,10 +62,11 @@ class SheddingThreshold {
 		// Calculating the maximum overhead via exponential decay
 		// https://en.wikipedia.org/wiki/Exponential_decay
 		// https://www.wolframcloud.com/objects/danielfireman/gci_overhead_exp_decay
-		// Looking at the graph above we can see where that at x=23, the function
+		// Looking at the graph above we can see where that at x=9, the function
 		// reaches the overhead of 0.001.
-		numGCs = Math.min(23, numGCs + 1);
-		return 0.1 / Math.exp(numGCs/5.0);  // 5 is a smooth factor.
+		double maxOverhead = 0.1 / Math.exp(numGCs/2.0);  // 2.0 is a smooth factor.
+		numGCs = Math.min(9, numGCs + 1);
+		return maxOverhead;
 	}
 
 	public String toString() {
