@@ -101,6 +101,13 @@ public class GarbageCollectorControlInterceptor {
 		return doingGC.get();
 	}
 	
+	private synchronized boolean shouldGC() {
+		double heapUsed = runtime.getHeapUsageSinceLastGC();
+		double avgReqHeapUsage = heapUsed / finished.get();
+		double heapToProcessQueue = avgReqHeapUsage * (incoming.get()-finished.get());
+		return heapUsed > (sheddingThreshold.get() - heapToProcessQueue);
+	}
+
 	public ShedResponse before() {
 		// The service is unavailable.
 		if (doingGC.get()) {
@@ -108,7 +115,7 @@ public class GarbageCollectorControlInterceptor {
 		}
 
 		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0) {
-			if (runtime.getHeapUsageSinceLastGC() > sheddingThreshold.get()) {
+			if (shouldGC()) {
 				// Starting unavailability period. 
 				synchronized (this) {
 					if (doingGC.get()) {
