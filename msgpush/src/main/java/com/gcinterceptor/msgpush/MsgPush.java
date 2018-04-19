@@ -25,7 +25,9 @@ public class MsgPush {
 	static {
 		WINDOW_SIZE = Integer.parseInt(System.getenv("WINDOW_SIZE"));
 		MSG_SIZE = Integer.parseInt(System.getenv("MSG_SIZE"));
-		buffer = new byte[WINDOW_SIZE][MSG_SIZE];
+		if (WINDOW_SIZE>0) {
+			buffer = new byte[WINDOW_SIZE][MSG_SIZE];
+		}
 	}
 
 	public static void main(String[] args) {
@@ -55,7 +57,9 @@ public class MsgPush {
 			for (int i = 0; i < MSG_SIZE; i++) {
 				byteArray[i] = (byte) i;
 			}
-			buffer[msgCount++ % WINDOW_SIZE] = byteArray;
+			if (WINDOW_SIZE > 0) {
+				buffer[msgCount++ % WINDOW_SIZE] = byteArray;
+			}
 
 			Thread.sleep(5);
 			long t = 15 + System.currentTimeMillis();
