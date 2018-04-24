@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 
 	private static final String SHED_RESPONSE_OBJ_NAME = "sr";
+	private static final String GCI_HEADERS_NAME = "GCI";
 
 	@Autowired
 	private GarbageCollectorControlInterceptor gci;
@@ -28,7 +29,7 @@ public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		ShedResponse shedResponse = gci.before();
+		ShedResponse shedResponse = gci.before(request.getHeader(GCI_HEADERS_NAME));
 		if (shedResponse.shouldShed) {
 			response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 			response.setContentLength(0);

@@ -7,7 +7,7 @@ cd ../
 
 cd spring/
 rm -rf target/
-mvn clean install || exit $?
+mvn clean install  || exit $?
 cd ../
 
 cd msgpush/

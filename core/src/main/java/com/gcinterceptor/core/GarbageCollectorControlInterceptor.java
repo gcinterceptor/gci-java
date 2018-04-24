@@ -5,8 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,11 +15,9 @@ public class GarbageCollectorControlInterceptor {
 	private AtomicBoolean doingGC;
 	private AtomicLong incoming;
 	private AtomicLong finished;
-	private AtomicLong shedRequests;
 	private RuntimeEnvironment runtime;
 	private SheddingThreshold sheddingThreshold;
 	private Sampler sampler;
-	private Executor executor;
 	private BufferedWriter bw;
 
 	/**
@@ -29,19 +25,14 @@ public class GarbageCollectorControlInterceptor {
 	 *
 	 * @param runtime
 	 *            {@code Runtime} used to interface with JVM heap.
-	 * @param executor
-	 *            thread pool used to trigger/control garbage collection.
 	 */
-	public GarbageCollectorControlInterceptor(RuntimeEnvironment runtime, Executor executor) {
+	public GarbageCollectorControlInterceptor(RuntimeEnvironment runtime) {
 		this.runtime = runtime;
-
-		this.executor = executor;
 		this.sampler = new Sampler(SAMPLE_HISTORY_SIZE);
 		this.doingGC = new AtomicBoolean(false);
 		this.incoming = new AtomicLong();
 		this.finished = new AtomicLong();
-		this.shedRequests = new AtomicLong();
-		this.sheddingThreshold = new SheddingThreshold();
+		this.sheddingThreshold = new SheddingThreshold(runtime);
 
 		if (SHED_RATIO_CSV_FILE != null) {
 			initiateCSVFlow();
@@ -74,17 +65,13 @@ public class GarbageCollectorControlInterceptor {
 	 * defaults.
 	 *
 	 * @see RuntimeEnvironment
-	 * @see System#gc()
-	 * @see Executors#newSingleThreadExecutor()
-	 * @see UnavailabilityDuration
 	 * @see Clock#systemDefaultZone()
 	 */
 	public GarbageCollectorControlInterceptor() {
-		this(new RuntimeEnvironment(), Executors.newSingleThreadExecutor());
+		this(new RuntimeEnvironment());
 	}
 
 	private ShedResponse shed() {
-		shedRequests.incrementAndGet();
 		return new ShedResponse(true);
 	}
 
@@ -97,64 +84,56 @@ public class GarbageCollectorControlInterceptor {
 		}
 	}
 
-	boolean doingGC() {
-		return doingGC.get();
-	}
-	
 	private synchronized boolean shouldGC() {
 		double heapUsed = runtime.getHeapUsageSinceLastGC();
 		double avgReqHeapUsage = heapUsed / finished.get();
-		double heapToProcessQueue = avgReqHeapUsage * (incoming.get()-finished.get());
-		return heapUsed > (sheddingThreshold.get() - heapToProcessQueue);
+		double heapUsedToProcessQueue = avgReqHeapUsage * (incoming.get()-finished.get());
+		return heapUsed > (sheddingThreshold.get() - heapUsedToProcessQueue);
 	}
 
-	public ShedResponse before() {
+	public ShedResponse before(String gciHeader) {
+		if(gciHeader != null) {
+				long shedRequests = Long.parseLong(gciHeader.substring(gciHeader.indexOf('/')+1));
+
+				// Loop waiting for the queue to get empty.
+				while (finished.get() < incoming.get()) {
+					try {
+						Thread.sleep(WAIT_FOR_TRAILERS_SLEEP_MILLIS.toMillis());
+					} catch (InterruptedException ie) {
+						throw new RuntimeException(ie);
+					}
+				}
+
+				// Force a garbage collect and keep the memory usage before the collection.
+				runtime.collect();
+
+				// Update sampler and ST.
+				sampler.update(finished.get());
+                sheddingThreshold.update();
+
+				if (SHED_RATIO_CSV_FILE != null) {
+					writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests));
+				}
+
+				// Zeroing counters.
+				incoming.set(0);
+				finished.set(0);
+
+				doingGC.set(false);
+				incoming.incrementAndGet();
+				return new ShedResponse(false);
+		 }
+
 		// The service is unavailable.
 		if (doingGC.get()) {
 			return shed();
 		}
 
-		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0) {
-			if (shouldGC()) {
-				// Starting unavailability period. 
-				synchronized (this) {
-					if (doingGC.get()) {
-						return shed();
-					} 
-					doingGC.set(true);
-				}
-				executor.execute(() -> {
-					// Loop waiting for the queue to get empty.
-					while (finished.get() < incoming.get()) {
-						try {
-							Thread.sleep(WAIT_FOR_TRAILERS_SLEEP_MILLIS.toMillis());
-						} catch (InterruptedException ie) {
-							throw new RuntimeException(ie);
-						}
-					}
-
-					// Force a garbage collect and keep the memory usage before the collection.
-					long alloc = runtime.collect();
-
-					// Update sampler and ST.
-					sampler.update(finished.get());
-					sheddingThreshold.update(alloc, finished.get(), shedRequests.get());
-
-					if (SHED_RATIO_CSV_FILE != null) {
-						writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests.get()));
-					}
-
-					// Zeroing counters.
-					incoming.set(0);
-					finished.set(0);
-					shedRequests.set(0);
-
-					// Finishing unavailability period.
-					doingGC.set(false);
-				});
-				return shed();
-			}
+		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0 && shouldGC()) {
+			doingGC.set(true);
+			return shed();
 		}
+	
 		incoming.incrementAndGet();
 		return new ShedResponse(false);
 	}

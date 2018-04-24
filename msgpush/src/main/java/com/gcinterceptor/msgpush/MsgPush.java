@@ -51,7 +51,7 @@ public class MsgPush {
 
 	@RestController
 	public static class HelloController {
-		@RequestMapping("/")
+		@RequestMapping("/*")
 		public void index() throws InterruptedException {
 			byte[] byteArray = new byte[MSG_SIZE];
 			for (int i = 0; i < MSG_SIZE; i++) {
