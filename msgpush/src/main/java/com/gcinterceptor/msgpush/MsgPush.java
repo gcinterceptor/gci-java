@@ -19,6 +19,8 @@ public class MsgPush {
 	private static final boolean USE_GCI = Boolean.parseBoolean(System.getenv("USE_GCI"));
 	private static int MSG_SIZE;
 	private static int WINDOW_SIZE;
+	private static int COMPUTING_TIME_MS = 15;
+	private static int SLEEP_TIME_MS = 5;
 	private static byte[][] buffer;
 	private static int msgCount;
 
@@ -28,6 +30,14 @@ public class MsgPush {
 		if (WINDOW_SIZE>0) {
 			buffer = new byte[WINDOW_SIZE][MSG_SIZE];
 		}
+		// Optional variables.
+		try {
+			COMPUTING_TIME_MS = Integer.parseInt(System.getenv("COMPUTING_TIME_MS"));
+		} catch (NumberFormatException nfe) {}
+		try {
+			SLEEP_TIME_MS = Integer.parseInt(System.getenv("SLEEP_TIME_MS"));
+		} catch (NumberFormatException nfe){}		
+
 	}
 
 	public static void main(String[] args) {
@@ -61,8 +71,8 @@ public class MsgPush {
 				buffer[msgCount++ % WINDOW_SIZE] = byteArray;
 			}
 
-			Thread.sleep(5);
-			long t = 15 + System.currentTimeMillis();
+			Thread.sleep(SLEEP_TIME_MS);
+			long t = COMPUTING_TIME_MS + System.currentTimeMillis();
 			while (t > System.currentTimeMillis()) {
 			}
 		}
