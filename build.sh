@@ -8,11 +8,3 @@ cd ../
 cd spring/
 rm -rf target/
 mvn clean install  || exit $?
-cd ../
-
-cd msgpush/
-rm -rf target/
-mvn clean install || exit $?
-cd ../
-
-
