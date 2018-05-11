@@ -25,8 +25,8 @@ class SheddingThreshold {
 
 	void update() {
 	    // TODO: Adjust these constants based on spurious GC executions.
-        long max = this.rt.getMaxHeapUsage();
-		threshold.set((long)(max - (max*0.2) - (max*0.30)*random.nextDouble()));
+        	long max = this.rt.getMaxHeapUsage();
+		threshold.set((long)(max - (max*0.3) - (max*0.2)*random.nextDouble()));
 	}
 
 	public String toString() {
