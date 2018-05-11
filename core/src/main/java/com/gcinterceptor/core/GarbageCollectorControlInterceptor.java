@@ -88,7 +88,8 @@ public class GarbageCollectorControlInterceptor {
 		double heapUsed = runtime.getHeapUsageSinceLastGC();
 		double avgReqHeapUsage = heapUsed / finished.get();
 		double heapUsedToProcessQueue = avgReqHeapUsage * (incoming.get()-finished.get());
-		return heapUsed > (sheddingThreshold.get() - heapUsedToProcessQueue);
+		double targetHeapToShed = sheddingThreshold.get() - heapUsedToProcessQueue;
+		return heapUsed > targetHeapToShed;
 	}
 
 	public ShedResponse before(String gciHeader) {
@@ -109,7 +110,7 @@ public class GarbageCollectorControlInterceptor {
 
 				// Update sampler and ST.
 				sampler.update(finished.get());
-                sheddingThreshold.update();
+		                sheddingThreshold.update();
 
 				if (SHED_RATIO_CSV_FILE != null) {
 					writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests));

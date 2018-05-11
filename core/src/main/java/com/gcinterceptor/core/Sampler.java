@@ -8,7 +8,7 @@ class Sampler {
 	private final int DEFAULT_SAMPLE_RATE = 64;
 	// Max sample rate can not be very big because of peaks.
 	// The algorithm is fairly conservative, but we never know.
-	private final int MAX_SAMPLE_RATE = 512;
+	private final int MAX_SAMPLE_RATE = 256;
 	
 	private int next;
 	private long[] pastSampleRates;
