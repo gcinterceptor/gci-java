@@ -8,14 +8,20 @@
 
 # Generating JNI header:
 
-> javac -classpath . com/gcinterceptor/core/GC.java
-> javah -verbose -classpath . com.gcinterceptor.core.GC
+```sh
+javac -classpath . com/gcinterceptor/core/GC.java
+javah -verbose -classpath . com.gcinterceptor.core.GC
+```
 
 # Compiling libgc.so
 
+```sh
 gcc -shared -fpic -I"/usr/lib/jvm/java-6-sun/include" -I"/usr/lib/jvm/java-10.0.1-openjdk-amd64/include" -I"/usr/lib/jvm/java-10.0.1-openjdk-amd64/include/linux" com_gcinterceptor_core_GC.c -o libgc.so
+```
 
 # Run GCTest
 
-> javac com/gcinterceptor/core/GCTest.java
-> java -Djvmtilib=${PWD}/libgc.so -classpath . com.gcinterceptor.core.GCTest
+```sh
+javac com/gcinterceptor/core/GCTest.java
+java -Djvmtilib=${PWD}/libgc.so -classpath . com.gcinterceptor.core.GCTest
+```
