@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class GarbageCollectorControlInterceptor {
-	private static final Duration WAIT_FOR_TRAILERS_SLEEP_MILLIS = Duration.ofMillis(10);
 	private static final int SAMPLE_HISTORY_SIZE = 5;
 	private static final String SHED_RATIO_CSV_FILE = System.getenv("SHED_RATIO_CSV_FILE");
 	private AtomicBoolean doingGC;
@@ -32,7 +31,7 @@ public class GarbageCollectorControlInterceptor {
 		this.doingGC = new AtomicBoolean(false);
 		this.incoming = new AtomicLong();
 		this.finished = new AtomicLong();
-		this.sheddingThreshold = new SheddingThreshold(runtime);
+		this.sheddingThreshold = new SheddingThreshold();
 
 		if (SHED_RATIO_CSV_FILE != null) {
 			initiateCSVFlow();
@@ -96,21 +95,12 @@ public class GarbageCollectorControlInterceptor {
 		if(gciHeader != null) {
 				long shedRequests = Long.parseLong(gciHeader.substring(gciHeader.indexOf('/')+1));
 
-				// Loop waiting for the queue to get empty.
-				while (finished.get() < incoming.get()) {
-					try {
-						Thread.sleep(WAIT_FOR_TRAILERS_SLEEP_MILLIS.toMillis());
-					} catch (InterruptedException ie) {
-						throw new RuntimeException(ie);
-					}
-				}
-
 				// Force a garbage collect and keep the memory usage before the collection.
-				runtime.collect();
+				long alloc = runtime.collect();
 
 				// Update sampler and ST.
 				sampler.update(finished.get());
-		                sheddingThreshold.update();
+		                sheddingThreshold.update(alloc, finished.get(), shedRequests);
 
 				if (SHED_RATIO_CSV_FILE != null) {
 					writeLine(String.valueOf(finished.get()), String.valueOf(shedRequests));
@@ -125,12 +115,7 @@ public class GarbageCollectorControlInterceptor {
 				return new ShedResponse(false);
 		 }
 
-		// The service is unavailable.
-		if (doingGC.get()) {
-			return shed();
-		}
-
-		if ((incoming.get() + 1) % sampler.getCurrentSampleSize() == 0 && shouldGC()) {
+		if (!doingGC.get() && (incoming.get() + 1) % sampler.getCurrentSampleSize() == 0 && shouldGC()) {
 			doingGC.set(true);
 			return shed();
 		}
