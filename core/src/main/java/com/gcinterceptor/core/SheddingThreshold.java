@@ -1,35 +1,81 @@
 package com.gcinterceptor.core;
 
-import java.lang.management.MemoryUsage;
-import java.util.concurrent.atomic.AtomicLong;
+import com.sun.management.GarbageCollectionNotificationInfo;
+
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.NotificationEmitter;
+import javax.management.NotificationListener;
 
 class SheddingThreshold {
+	/**
+	 * The minimum value of shedding threshold to collect.
+	 */
+	static final long MIN_SHEDDING_THRESHOLD = 32 * 1024 * 1024;
+
+	private AtomicLong maxSheddingThreshold = new AtomicLong(256 * 1024 * 1024);
 	private final Random random;
-	private final RuntimeEnvironment rt;
-	private AtomicLong threshold = new AtomicLong();
+	private AtomicLong threshold;
+	private int numGCs;
 
-	SheddingThreshold(RuntimeEnvironment rt) {
-		this(System.nanoTime(), rt);
+	SheddingThreshold() {
+		this(System.nanoTime());
 	}
 
-	SheddingThreshold(long seed, RuntimeEnvironment rt) {
-		this.random = new Random(seed);
-		this.rt = rt;
-		this.threshold = new AtomicLong(64 * 1024 * 1024);
+	SheddingThreshold(long seed) {
+		random = new Random(seed);
+
+		try {
+			maxSheddingThreshold.set((long)(Long.parseLong(System.getenv("YOUNG_GEN"))*0.7));
+		} catch (NumberFormatException nfe) {
+			nfe.printStackTrace();
+		}
+
+		threshold = new AtomicLong((long)(maxSheddingThreshold.get()/3.0));
+
+
+		List<GarbageCollectorMXBean> gcbeans = ManagementFactory.getGarbageCollectorMXBeans();
+		for (GarbageCollectorMXBean gcbean : gcbeans) {
+			NotificationEmitter emitter = (NotificationEmitter) gcbean;
+			NotificationListener listener = (notification, handback) -> {
+				if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
+					GarbageCollectionNotificationInfo info = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
+					if (!info.getGcCause().equals("JvmtiEnv ForceGarbageCollection")) {
+						maxSheddingThreshold.set((long)(maxSheddingThreshold.get() - MIN_SHEDDING_THRESHOLD));
+						threshold.set((long)(maxSheddingThreshold.get() - (random.nextDouble() * MIN_SHEDDING_THRESHOLD)));
+					}
+				}
+			};
+			emitter.addNotificationListener(listener, null, null);
+		}
 	}
 
-	long get() {
+	int numGCs() {
+		return numGCs;
+	}
+
+	double get() {
 		return threshold.get();
 	}
 
-	void update() {
-	    // TODO: Adjust these constants based on spurious GC executions.
-        	long max = this.rt.getMaxHeapUsage();
-		threshold.set((long)(max - (max*0.3) - (max*0.2)*random.nextDouble()));
+	void update(long alloc, long finished, long shedRequests) {
+		long thresholdCandidate = 0;
+		thresholdCandidate = (long) (alloc + (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
+		long maxSt = maxSheddingThreshold.get();
+		if (thresholdCandidate >= maxSt) {
+			thresholdCandidate = (long) (maxSt - (random.nextDouble() * MIN_SHEDDING_THRESHOLD));
+		}
+		threshold.set(thresholdCandidate);
 	}
 
 	public String toString() {
 		return "ST: " + threshold.get()/(1024*1024) + " MB";
 	}
 }
+
