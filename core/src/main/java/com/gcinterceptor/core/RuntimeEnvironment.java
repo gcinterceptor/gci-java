@@ -54,7 +54,7 @@ class RuntimeEnvironment {
         }
 
         void gc() {
-            System.gc();
+	    GC.force();
         }
 
         public long getMaxUsage() {
