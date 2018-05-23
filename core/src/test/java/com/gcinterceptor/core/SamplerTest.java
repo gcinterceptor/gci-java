@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class SamplerTest {
 	private final int DEFAULT_SAMPLE_RATE = 64;
-	private final int MAX_SAMPLE_RATE = 256;
+	private final int MAX_SAMPLE_RATE = 512;
 	private Sampler sampler;
 	
 	@Before
