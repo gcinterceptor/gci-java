@@ -3,62 +3,79 @@ package com.gcinterceptor.core;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 
-class RuntimeEnvironment {
-    private Heap heap;
-    private long lastAlloc;
-    private long lastUsed;
+public class RuntimeEnvironment {
+	private Heap heap;
+	private long youngLastAlloc;
+	private long tenuredLastAlloc;
+	private long youngLastUsed;
+	private long tenuredLastUsed;
 
-    RuntimeEnvironment(Heap heap) {
-        this.heap = heap;
-        lastAlloc = this.heap.getUsage();
-    }
+	public RuntimeEnvironment(Heap heap) {
+		this.heap = heap;
+		youngLastAlloc = this.heap.getYoungUsage();
+	}
 
-    RuntimeEnvironment() {
-        this(new Heap());
-    }
+	public RuntimeEnvironment() {
+		this(new Heap());
+	}
 
-    long getHeapUsageSinceLastGC() {
-        lastUsed = getHeapUsage() - lastAlloc;
-        return lastUsed;
-    }
+	public void collect() {
+		heap.gc();
+		youngLastAlloc = heap.getYoungUsage();
+		tenuredLastAlloc = heap.getTenuredUsage();
+	}
 
-    long getMaxHeapUsage(){
-        return heap.getMaxUsage();
-    }
+	public long getYoungHeapUsageSinceLastGC() {
+		youngLastUsed = getYoungHeapUsage() - youngLastAlloc;
+		return youngLastUsed;
+	}
 
-    long getHeapUsage() {
-        return heap.getUsage();
-    }
+	public long getTenuredHeapUsageSinceLastGC() {
+		tenuredLastUsed = getTenuredHeapUsage() - tenuredLastAlloc;
+		return tenuredLastUsed;
+	}
 
-    long collect() {
-        long lastUsage = getHeapUsageSinceLastGC();
-        heap.gc();
-        lastAlloc = heap.getUsage();
-        return lastUsage;
-    }
+	private long getYoungHeapUsage() {
+		return heap.getYoungUsage();
+	}
 
-    static class Heap {
-        private MemoryPoolMXBean youngPool;
+	private long getTenuredHeapUsage() {
+		return heap.getTenuredUsage();
+	}
 
-        Heap() {
-            for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-                if (pool.getName().contains("Eden")) {
-                    youngPool = pool;
-                    break;
-                }
-            }
-        }
+	static class Heap {
+		private MemoryPoolMXBean youngPool;
+		private MemoryPoolMXBean tenuredPool;
 
-        long getUsage() {
-            return this.youngPool.getUsage().getUsed();
-        }
+		Heap() {
+			for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+				if (pool.getName().contains("Eden")) {
+					youngPool = pool;
+					continue;
+				}
+				if (pool.getName().contains("Old")) {
+					tenuredPool = pool;
+					continue;
+				}
 
-        void gc() {
-	    GC.force();
-        }
+				if (youngPool != null && tenuredPool != null) {
+					break;
+				}
+			}
 
-        public long getMaxUsage() {
-            return youngPool.getUsage().getMax();
-        }
-    }
+		}
+
+		long getYoungUsage() {
+			return this.youngPool.getUsage().getUsed();
+		}
+
+		long getTenuredUsage() {
+			return this.tenuredPool.getUsage().getUsed();
+		}
+
+		void gc() {
+			GC.force();
+		}
+
+	}
 }

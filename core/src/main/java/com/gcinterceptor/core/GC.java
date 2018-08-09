@@ -6,6 +6,5 @@ public class GC {
 
 	static {
 		System.load(System.getProperty("jvmtilib"));
-
 	}
 }
