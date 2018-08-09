@@ -1,10 +1,6 @@
 package com.gcinterceptor.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
 
 import org.junit.Test;
 
@@ -32,7 +28,7 @@ public class RuntimeEnvironmentTest {
 
 	}
 	
-	class FakeHeap extends RuntimeEnvironment.Heap {
+	private class FakeHeap extends RuntimeEnvironment.Heap {
 		private long memoryUsedInBytes;
 		
 		void alloc(long toAlloc) {

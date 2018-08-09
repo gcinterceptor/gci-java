@@ -1,53 +1,43 @@
 package com.gcinterceptor.core;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 public class GarbageCollectorControlInterceptorTest {
 
 	@Test
 	public void testGarbageCollectorControlInterceptorHeapExecutor() throws InterruptedException {
-		FakeRuntime heap = new FakeRuntime();
-		GarbageCollectorControlInterceptor gci = new GarbageCollectorControlInterceptor(heap);
-
-		ShedResponse sr;
-		for (int i = 1; i <= 63; i++) { // The default sample size is 64. So, we want call before 63 times...
-			sr = gci.before(null);
-			assertFalse(sr.shouldShed);
-			assertFalse(heap.hasChecked()); // Note that we can do it outside the loop, but here we can find out which
-											// interaction fail.
-			assertFalse(heap.hasCollected()); // Same here...
-			gci.after(sr);
-		}
-		sr = gci.before(null);
-		assertFalse(sr.shouldShed);
-		assertTrue(heap.hasChecked()); // That the 64º before call, it should have already checked.
-		assertFalse(heap.hasCollected());
-		gci.after(sr);
-
-		heap.resetFlags();
-		heap.fillMemory();
-		for (int i = 1; i <= 63; i++) {
-			sr = gci.before(null);
-			assertFalse(sr.shouldShed);
-			assertFalse(heap.hasChecked());
-			assertFalse(heap.hasCollected());
-			gci.after(sr);
-		}
-        heap.resetFlags();
-        sr = gci.before(null);
-        assertTrue(sr.shouldShed);
-        assertTrue(heap.hasChecked());
-        assertFalse(heap.hasCollected());
-        gci.after(sr);
-
-        heap.resetFlags();
-		sr = gci.before("GCI/0");
-        assertFalse(heap.hasChecked());
-		assertTrue(heap.hasCollected());
-		gci.after(sr);
+		FakeRuntime runtime = new FakeRuntime();
+		GarbageCollectorControlInterceptor gci = new GarbageCollectorControlInterceptor(runtime);
+				
+		assertFalse(runtime.hasChecked);
+		assertFalse(runtime.hasCollected);
+		
+		gci.getHeapUsageSinceLastGC();
+		assertTrue(runtime.hasChecked);
+		assertFalse(runtime.hasCollected);
+		
+		gci.collect();
+		assertTrue(runtime.hasChecked);
+		assertTrue(runtime.hasCollected);
+		
+		runtime.resetFlags();
+		assertFalse(runtime.hasChecked);
+		assertFalse(runtime.hasCollected);
+		
+		runtime.fillMemory();
+		long usage = gci.getHeapUsageSinceLastGC();
+		assertTrue(runtime.hasChecked);
+		assertFalse(runtime.hasCollected);
+		assertEquals(usage, runtime.alloc);
+		
+		usage = gci.collect();
+		assertTrue(runtime.hasChecked);
+		assertTrue(runtime.hasCollected);
+		assertEquals(usage, runtime.alloc);
+		assertEquals(usage, 0);
+		
 	}
 
 	private class FakeRuntime extends RuntimeEnvironment {
@@ -55,23 +45,17 @@ public class GarbageCollectorControlInterceptorTest {
 		private boolean hasChecked;
 		private long alloc;
 
+		@Override
 		long getHeapUsageSinceLastGC() {
 			hasChecked = true;
 			return alloc;
 		}
 
+		@Override
 		long collect() {
 			hasCollected = true;
 			cleanMemory();
 			return alloc;
-		}
-
-		boolean hasChecked() {
-			return hasChecked;
-		}
-
-		boolean hasCollected() {
-			return hasCollected;
 		}
 
 		void resetFlags() {
