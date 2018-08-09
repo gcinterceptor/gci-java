@@ -1,10 +1,10 @@
 package com.gcinterceptor.spring;
 
-import com.gcinterceptor.core.GarbageCollectorControlInterceptor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import com.gcinterceptor.core.RuntimeEnvironment;
 
 /**
  * Spring {@link Configuration} to be exported by the application that would
@@ -21,7 +21,7 @@ public class SpringGcInterceptorConfiguration {
     }
 
     @Bean
-    public GarbageCollectorControlInterceptor gcInterceptor() {
-        return new GarbageCollectorControlInterceptor();
+    public RuntimeEnvironment runtimeEnvironment() {
+        return new RuntimeEnvironment();
     }
 }
