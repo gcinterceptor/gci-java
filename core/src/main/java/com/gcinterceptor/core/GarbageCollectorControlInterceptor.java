@@ -26,11 +26,11 @@ public class GarbageCollectorControlInterceptor {
 		this(new RuntimeEnvironment());
 	}
 
-    long getHeapUsageSinceLastGC() {
+    public long getHeapUsageSinceLastGC() {
         return this.runtime.getHeapUsageSinceLastGC();
     }
     
-    long collect() {
+    public long collect() {
         return this.runtime.collect();
     }
 	
