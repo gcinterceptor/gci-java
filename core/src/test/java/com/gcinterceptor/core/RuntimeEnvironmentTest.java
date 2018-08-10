@@ -28,8 +28,8 @@ public class RuntimeEnvironmentTest {
 	public void testRuntimeNullPoolsInit() {
 		try {
 			RuntimeEnvironment runtime = new RuntimeEnvironment();
-			runtime.getTenuredHeapUsageSinceLastGC();
-			runtime.getYoungHeapUsageSinceLastGC();
+			runtime.getTenuredHeapUsage();
+			runtime.getYoungHeapUsage();
 			runtime.collect();
 		} catch (NullPointerException e) {
 			fail();

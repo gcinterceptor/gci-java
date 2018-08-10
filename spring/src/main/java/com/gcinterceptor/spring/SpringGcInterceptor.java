@@ -40,8 +40,8 @@ public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 			return true;
 
 		case CH_HEADERS_NAME:
-			String heapUsageString = Long.valueOf(runtime.getYoungHeapUsageSinceLastGC()) + "|"
-					+ Long.valueOf(runtime.getTenuredHeapUsageSinceLastGC());
+			String heapUsageString = Long.valueOf(runtime.getYoungHeapUsage()) + "|"
+					+ Long.valueOf(runtime.getTenuredHeapUsage());
 			response.getWriter().write(heapUsageString);
 			response.getWriter().flush();
 			response.getWriter().close();

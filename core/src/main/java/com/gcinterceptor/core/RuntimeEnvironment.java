@@ -6,8 +6,6 @@ import java.lang.management.MemoryPoolMXBean;
 public class RuntimeEnvironment {
 	private MemoryPoolMXBean youngPool;
 	private MemoryPoolMXBean tenuredPool;
-	private long youngLastAlloc;
-	private long tenuredLastAlloc;
 
 	public RuntimeEnvironment() {
 		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
@@ -24,29 +22,17 @@ public class RuntimeEnvironment {
 				break;
 			}
 		}
-		youngLastAlloc = youngPool.getUsage().getUsed();
-		tenuredLastAlloc = tenuredPool.getUsage().getUsed();
 	}
 
 	public void collect() {
 		GC.force();
-		youngLastAlloc = getYoungHeapUsage();
-		tenuredLastAlloc = getTenuredHeapUsage();
 	}
 
-	public long getYoungHeapUsageSinceLastGC() {
-		return getYoungHeapUsage() - youngLastAlloc;
-	}
-
-	public long getTenuredHeapUsageSinceLastGC() {
-		return getTenuredHeapUsage() - tenuredLastAlloc;
-	}
-
-	private long getYoungHeapUsage() {
+	public long getYoungHeapUsage() {
 		return youngPool.getUsage().getUsed();
 	}
 
-	private long getTenuredHeapUsage() {
+	public long getTenuredHeapUsage() {
 		return tenuredPool.getUsage().getUsed();
 	}
 
