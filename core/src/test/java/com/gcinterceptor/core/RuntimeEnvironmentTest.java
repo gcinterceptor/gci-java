@@ -1,15 +1,17 @@
 package com.gcinterceptor.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
 public class RuntimeEnvironmentTest {
-	
-	@Test(expected=ExceptionInInitializerError.class)
-	public void testLibgcFailedCall() {
+
+	@Test
+	public void testLibgcCall() {
 		RuntimeEnvironment runtime = new RuntimeEnvironment();
+		System.setProperty("jvmtilib", System.getProperty("user.dir") + "/src/main/java/libgc.so");
 		runtime.collect();
+		System.clearProperty("jvmtilib");
 	}
 
 	@Test
@@ -34,7 +36,7 @@ public class RuntimeEnvironmentTest {
 		runtime.collect();
 		assertEquals(0, runtime.getYoungHeapUsageSinceLastGC());
 	}
-	
+
 	@Test
 	public void testTenuredHeap() {
 		FakeHeap heap = new FakeHeap();
@@ -61,16 +63,15 @@ public class RuntimeEnvironmentTest {
 
 	private class FakeHeap extends RuntimeEnvironment.Heap {
 		private long memoryUsedInBytes;
-		
+
 		void alloc(long toAlloc) {
-			memoryUsedInBytes += toAlloc; 
+			memoryUsedInBytes += toAlloc;
 		}
-		
+
 		@Override
 		long getYoungUsage() {
 			return memoryUsedInBytes;
 		}
-		
 
 		@Override
 		long getTenuredUsage() {
@@ -81,7 +82,7 @@ public class RuntimeEnvironmentTest {
 		void gc() {
 			memoryUsedInBytes = 0;
 		}
-		
+
 	}
-	
+
 }
