@@ -1,15 +1,22 @@
-sudo: true
+sudo: false
 
 language: java
 jdk:
-  - oraclejdk8
-  - oraclejdk9
+  - openjdk10
+
+before_install:
+  - wget https://github.com/sormuras/bach/blob/master/install-jdk.sh
 
 notificaitons:
   email:
     recipients: david.quaresma@ccc.ufcg.edu.com
     on_success: change
     on_failure: always
+
+matrix:
+  include:
+    - env: JDK='OpenJDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
 
 script:
  - bash build.sh
