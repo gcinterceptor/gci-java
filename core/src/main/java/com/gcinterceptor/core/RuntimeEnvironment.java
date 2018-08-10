@@ -13,6 +13,7 @@ public class RuntimeEnvironment {
 	public RuntimeEnvironment(Heap heap) {
 		this.heap = heap;
 		youngLastAlloc = this.heap.getYoungUsage();
+		tenuredLastAlloc = this.heap.getTenuredUsage();
 	}
 
 	public RuntimeEnvironment() {

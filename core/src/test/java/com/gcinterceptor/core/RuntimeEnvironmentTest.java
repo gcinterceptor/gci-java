@@ -61,6 +61,13 @@ public class RuntimeEnvironmentTest {
 
 	}
 
+	@Test
+	public void testHeapPoolLoadIsNotNull() {
+		RuntimeEnvironment.Heap heap = new RuntimeEnvironment.Heap();
+		heap.getYoungUsage();
+		heap.getTenuredUsage();
+	}
+	
 	private class FakeHeap extends RuntimeEnvironment.Heap {
 		private long memoryUsedInBytes;
 
