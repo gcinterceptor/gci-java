@@ -18,7 +18,6 @@ import com.gcinterceptor.core.RuntimeEnvironment;
  */
 @Configuration
 public class SpringGcInterceptor extends HandlerInterceptorAdapter {
-	private static final String EMPTY_HEADER = "";
 	private static final String CH_HEADER = "ch";
 	private static final String GCI_HEADERS_NAME = "gci";
 
@@ -39,9 +38,6 @@ public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 		}
 
 		switch (gciHeader) {
-		case EMPTY_HEADER:
-			return true;
-
 		case CH_HEADER:
 			String heapUsageString = Long.valueOf(runtime.getYoungHeapUsage()) + "|"
 					+ Long.valueOf(runtime.getTenuredHeapUsage());

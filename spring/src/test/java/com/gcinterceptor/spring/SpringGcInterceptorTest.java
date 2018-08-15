@@ -14,8 +14,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * Unit test for simple SpringGciInterceptor.
  */
  public class SpringGcInterceptorTest {
-
-	private static final String EMPTY_HEADERS_NAME = "";
 	private static final String CH_HEADERS_NAME = "ch";
 	private static final String GCI_HEADERS_NAME = "gci";
 	
@@ -42,13 +40,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 	@Test
 	public void testNullGCIHeader() throws Exception {
-		springGcInterceptor.preHandle(request, response, null);
-		assertEquals(0, response.getContentAsString().length());
-	}
-
-	@Test
-	public void testEmptyGCIHeader() throws Exception {
-		request.addHeader(GCI_HEADERS_NAME, EMPTY_HEADERS_NAME);
 		springGcInterceptor.preHandle(request, response, null);
 		assertEquals(0, response.getContentAsString().length());
 	}
