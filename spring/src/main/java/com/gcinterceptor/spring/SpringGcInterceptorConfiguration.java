@@ -1,5 +1,7 @@
 package com.gcinterceptor.spring;
 
+import com.gcinterceptor.core.RuntimeEnvironment;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,5 +21,10 @@ public class SpringGcInterceptorConfiguration {
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public SpringGcInterceptor springGcInterceptor() {
         return new SpringGcInterceptor();
+    }
+
+    @Bean
+    public RuntimeEnvironment runtimeEnvironment() {
+        return new RuntimeEnvironment();
     }
 }
