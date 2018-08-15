@@ -23,6 +23,6 @@ matrix:
 script:
  - bash build.sh
 
-after_success:
-  - cd core/
-  - mvn clean test jacoco:report coveralls:report
+#after_success:
+#  - cd core/
+#  - mvn clean test jacoco:report coveralls:report
