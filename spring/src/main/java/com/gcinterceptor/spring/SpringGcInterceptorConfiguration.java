@@ -1,10 +1,10 @@
 package com.gcinterceptor.spring;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import com.gcinterceptor.core.RuntimeEnvironment;
+import org.springframework.context.annotation.Scope;
 
 /**
  * Spring {@link Configuration} to be exported by the application that would
@@ -16,12 +16,8 @@ import com.gcinterceptor.core.RuntimeEnvironment;
 @ComponentScan
 public class SpringGcInterceptorConfiguration {
     @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public SpringGcInterceptor springGcInterceptor() {
         return new SpringGcInterceptor();
-    }
-
-    @Bean
-    public RuntimeEnvironment runtimeEnvironment() {
-        return new RuntimeEnvironment();
     }
 }
