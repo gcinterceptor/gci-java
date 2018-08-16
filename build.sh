@@ -1,5 +1,8 @@
 #!/bin/bash
 
+date
+set -x
+
 # Compile libgc.so
 cd core/src/main/java/
 javac -classpath . com/gcinterceptor/core/GC.java
