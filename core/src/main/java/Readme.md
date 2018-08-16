@@ -10,7 +10,7 @@
 
 ```sh
 javac -classpath . com/gcinterceptor/core/GC.java
-javah -verbose -classpath . com.gcinterceptor.core.GC
+javac -h . com/gcinterceptor/core/GC.java
 ```
 
 # Compiling libgc.so
