@@ -2,6 +2,7 @@ package com.gcinterceptor.spring;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,16 +46,20 @@ import org.springframework.mock.web.MockHttpServletResponse;
 	}
 
 	@Test
-	public void testCollectingHeader() throws Exception {
+	public void testCollectHeader() throws Exception {
 		request.addHeader(GCI_HEADERS_NAME, "Any string to trigger a collect.");
 		springGcInterceptor.preHandle(request, response, null);
 		assertEquals(0, response.getContentAsString().length());
 	}
 
 	@Test
-	public void testCHHeader() throws Exception {
+	public void testChHeader() throws Exception {
 		request.addHeader(GCI_HEADERS_NAME, CH_HEADERS_NAME);
 		springGcInterceptor.preHandle(request, response, null);
-		assertTrue(0 != response.getContentAsString().length());
+		try {
+			Integer.parseInt(response.getContentAsString().split("|")[0]);
+		} catch (Exception e) {
+			fail();
+		}
 	}
 }
