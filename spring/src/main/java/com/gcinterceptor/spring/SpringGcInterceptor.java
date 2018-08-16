@@ -3,12 +3,11 @@ package com.gcinterceptor.spring;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gcinterceptor.core.RuntimeEnvironment;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import com.gcinterceptor.core.RuntimeEnvironment;
 
 /**
  * Spring interceptor that uses {@link GarbageCollectorControlInterceptor} to
@@ -21,7 +20,6 @@ public class SpringGcInterceptor extends HandlerInterceptorAdapter {
 	private static final String CH_HEADER = "ch";
 	private static final String GCI_HEADERS_NAME = "gci";
 
-	@Autowired
 	private RuntimeEnvironment runtime;
 
 	public SpringGcInterceptor() {
