@@ -3,62 +3,37 @@ package com.gcinterceptor.core;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 
-class RuntimeEnvironment {
-    private Heap heap;
-    private long lastAlloc;
-    private long lastUsed;
+public class RuntimeEnvironment {
+	private MemoryPoolMXBean youngPool;
+	private MemoryPoolMXBean tenuredPool;
 
-    RuntimeEnvironment(Heap heap) {
-        this.heap = heap;
-        lastAlloc = this.heap.getUsage();
-    }
+	public RuntimeEnvironment() {
+		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+			if (pool.getName().contains("Eden")) {
+				youngPool = pool;
+				continue;
+			}
+			if (pool.getName().contains("Old")) {
+				tenuredPool = pool;
+				continue;
+			}
 
-    RuntimeEnvironment() {
-        this(new Heap());
-    }
+			if (youngPool != null && tenuredPool != null) {
+				break;
+			}
+		}
+	}
 
-    long getHeapUsageSinceLastGC() {
-        lastUsed = getHeapUsage() - lastAlloc;
-        return lastUsed;
-    }
+	public void collect() {
+		GC.force();
+	}
 
-    long getMaxHeapUsage(){
-        return heap.getMaxUsage();
-    }
+	public long getYoungHeapUsage() {
+		return youngPool.getUsage().getUsed();
+	}
 
-    long getHeapUsage() {
-        return heap.getUsage();
-    }
+	public long getTenuredHeapUsage() {
+		return tenuredPool.getUsage().getUsed();
+	}
 
-    long collect() {
-        long lastUsage = getHeapUsageSinceLastGC();
-        heap.gc();
-        lastAlloc = heap.getUsage();
-        return lastUsage;
-    }
-
-    static class Heap {
-        private MemoryPoolMXBean youngPool;
-
-        Heap() {
-            for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-                if (pool.getName().contains("Eden")) {
-                    youngPool = pool;
-                    break;
-                }
-            }
-        }
-
-        long getUsage() {
-            return this.youngPool.getUsage().getUsed();
-        }
-
-        void gc() {
-	    GC.force();
-        }
-
-        public long getMaxUsage() {
-            return youngPool.getUsage().getMax();
-        }
-    }
 }

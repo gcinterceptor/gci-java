@@ -1,10 +1,10 @@
 package com.gcinterceptor.spring;
 
-import com.gcinterceptor.core.GarbageCollectorControlInterceptor;
-
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 /**
  * Spring {@link Configuration} to be exported by the application that would
@@ -16,12 +16,8 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 public class SpringGcInterceptorConfiguration {
     @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public SpringGcInterceptor springGcInterceptor() {
         return new SpringGcInterceptor();
-    }
-
-    @Bean
-    public GarbageCollectorControlInterceptor gcInterceptor() {
-        return new GarbageCollectorControlInterceptor();
     }
 }
