@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 	@BeforeClass
 	public static void setUpEnvironmentTest() {
-		System.setProperty("jvmtilib", System.getProperty("user.dir") + "/src/main/java/libgc.so");
+		System.setProperty("jvmtilib", System.getProperty("user.dir").replaceAll("gci-java/spring", "gci-java/core") + "/src/main/java/libgc.so");
 	}
 
 	@AfterClass
@@ -40,6 +40,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 	@Test
 	public void testNullGCIHeader() throws Exception {
+		springGcInterceptor.preHandle(request, response, null);
+		assertEquals(0, response.getContentAsString().length());
+	}
+
+	@Test
+	public void testCollectingHeader() throws Exception {
+		request.addHeader(GCI_HEADERS_NAME, "Any string to trigger a collect.");
 		springGcInterceptor.preHandle(request, response, null);
 		assertEquals(0, response.getContentAsString().length());
 	}
