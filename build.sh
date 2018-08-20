@@ -7,7 +7,7 @@ set -x
 cd core/src/main/java/
 javac -classpath . com/gcinterceptor/core/GC.java
 javac -h . com/gcinterceptor/core/GC.java
-gcc -shared -fpic -I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/linux" ./com_gcinterceptor_core_GC.c -o ./libgc.so
+gcc -shared -fpic -I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/linux" ./com_gcinterceptor_core_GC.c -o ./libgc.so || exit $?
 cd ../../../../
 
 # Build GCI core 
