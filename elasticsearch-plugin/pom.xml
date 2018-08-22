@@ -8,7 +8,7 @@
     <name>elasticsearch.plugin</name>
     <url>http://maven.apache.org</url>
     <properties>
-        <elasticsearch.version>6.3.0</elasticsearch.version>
+        <elasticsearch.version>5.2.0</elasticsearch.version>
     </properties>
     <build>
         <resources>
@@ -21,7 +21,6 @@
             </resource>
         </resources>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
