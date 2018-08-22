@@ -1,2 +1,4 @@
-gci-elasticsearch.iml
-target/
+.settings
+.classpath
+.project
+target
