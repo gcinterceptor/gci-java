@@ -20,6 +20,7 @@ cd ../
 cd spring/
 rm -rf target/
 mvn clean install  || exit $?
+cd ../
 
 # Build GciPlugin
 cd elasticsearch-plugin/
