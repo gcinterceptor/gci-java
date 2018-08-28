@@ -1,25 +1,33 @@
+
 package com.gcinterceptor.elasticsearch;
 
-import java.util.function.UnaryOperator;
-
-import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
+import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
+import org.elasticsearch.cluster.node.DiscoveryNodes;
+import org.elasticsearch.common.settings.ClusterSettings;
+import org.elasticsearch.common.settings.IndexScopedSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.SettingsFilter;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.rest.RestChannel;
+import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
-import org.elasticsearch.rest.RestRequest;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+import static java.util.Collections.singletonList;
 
 public class GciElasticsearchPlugin extends Plugin implements ActionPlugin {
 
-	@Override
-	public UnaryOperator<RestHandler> getRestHandlerWrapper(ThreadContext threadContext) {
-		return restHandler -> new RestHandler() {
-			@Override
-			public void handleRequest(RestRequest request, RestChannel channel, NodeClient client) throws Exception {
-				System.out.println("THE GCI ELASTICSEARCH PLUGIN IS RUNNING!!!");
-				restHandler.handleRequest(request, channel, client);
-			}
-		};
-	}
+    @Override
+    public List<RestHandler> getRestHandlers(final Settings settings,
+                                             final RestController restController,
+                                             final ClusterSettings clusterSettings,
+                                             final IndexScopedSettings indexScopedSettings,
+                                             final SettingsFilter settingsFilter,
+                                             final IndexNameExpressionResolver indexNameExpressionResolver,
+                                             final Supplier<DiscoveryNodes> nodesInCluster) {
+
+        return singletonList(new GciRestHandler(settings, restController));
+    }
 }
