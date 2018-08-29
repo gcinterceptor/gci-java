@@ -4,10 +4,7 @@ import static org.elasticsearch.rest.RestRequest.Method.GET;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
-import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -43,11 +40,10 @@ public class GciRestHandler extends BaseRestHandler {
 			switch (gciHeader) {
 			case CH_HEADER:
 				responseBody = getHeapUsageString();
-				;
 				break;
 
 			default:
-				collect();
+				runtime.collect();
 				break;
 			}
 		}
@@ -63,19 +59,6 @@ public class GciRestHandler extends BaseRestHandler {
 		String heapUsageString = Long.valueOf(runtime.getYoungHeapUsage()) + "|"
 				+ Long.valueOf(runtime.getTenuredHeapUsage());
 		return heapUsageString;
-	}
-
-	private void collect() {
-		SecurityManager sm = System.getSecurityManager();
-		if (sm != null) {
-			sm.checkPermission(new SpecialPermission());
-		}
-		AccessController.doPrivileged(new PrivilegedAction<Void>() {
-			public Void run() {
-				runtime.collect();
-				return null;
-			}
-		});
 	}
 
 	private BytesRestResponse buildResponse(String body, RestChannel channel) throws IOException {
