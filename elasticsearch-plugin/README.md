@@ -8,7 +8,7 @@ bash /path/to/gci-core/build.sh
 ```
 
 ## Installing the plugin
-Before installing, you must download the elasticsearch. It can be done [here](https://www.elastic.co/downloads/elasticsearch). Inside the elasticsearch, run the commands below as wish.
+Before installing, you must download the elasticsearch. It can be done [here](https://www.elastic.co/downloads/elasticsearch). Run the commands below as wish.
 
 ```bash
 # To install the gci elasticsearch plugin.
