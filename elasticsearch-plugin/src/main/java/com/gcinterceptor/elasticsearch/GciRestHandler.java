@@ -20,9 +20,6 @@ import org.elasticsearch.rest.RestStatus;
 
 import com.gcinterceptor.core.RuntimeEnvironment;
 
-/**
- * Example of adding a cat action with a plugin.
- */
 public class GciRestHandler extends BaseRestHandler {
 	private static final String CH_HEADER = "ch";
 	private static final String GCI_HEADERS_NAME = "gci";
@@ -57,7 +54,7 @@ public class GciRestHandler extends BaseRestHandler {
 
 		String body = responseBody;
 		return channel -> {
-			BytesRestResponse response = getResponse(body, channel);
+			BytesRestResponse response = buildResponse(body, channel);
 			channel.sendResponse(response);
 		};
 	}
@@ -81,7 +78,7 @@ public class GciRestHandler extends BaseRestHandler {
 		});
 	}
 
-	private BytesRestResponse getResponse(String body, RestChannel channel) throws IOException {
+	private BytesRestResponse buildResponse(String body, RestChannel channel) throws IOException {
 		XContentBuilder builder = channel.newBuilder();
 		OutputStream outPutStream = builder.getOutputStream();
 		outPutStream.write(body.getBytes());
