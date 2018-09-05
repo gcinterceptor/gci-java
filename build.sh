@@ -22,7 +22,7 @@ rm -rf target/
 mvn clean install  || exit $?
 cd ../
 
-# Build GciPlugin
+# Build GciPlugin for ES 6.4.0
 cd elasticsearch-6.4.0-plugin/
 rm -rf target/
 mvn clean install  || exit $?
@@ -31,3 +31,21 @@ cp core/target/gci-core-0.1.jar elasticsearch-6.4.0-plugin/target/
 cp elasticsearch-6.4.0-plugin/src/main/resources/plugin-descriptor.properties elasticsearch-6.4.0-plugin/target/
 cd elasticsearch-6.4.0-plugin/target/
 zip gci-elasticsearch-plugin.zip plugin-descriptor.properties gci-core-0.1.jar  gci-elasticsearch-6.4.0-plugin-0.0.1-SNAPSHOT.jar
+cd ../../
+
+# Build GciPlugin for ES 5.5.3
+cd elasticsearch-5.5.3-plugin/
+rm -rf target/
+mvn clean install  || exit $?
+cd ../
+cp core/target/gci-core-0.1.jar elasticsearch-5.5.3-plugin/target/
+cp elasticsearch-5.5.3-plugin/src/main/resources/plugin-descriptor.properties elasticsearch-5.5.3-plugin/target/
+cd elasticsearch-5.5.3-plugin/target/
+zip gci-elasticsearch-plugin.zip plugin-descriptor.properties gci-core-0.1.jar  gci-elasticsearch-5.5.3-plugin-0.0.1-SNAPSHOT.jar
+
+
+
+
+
+
+
