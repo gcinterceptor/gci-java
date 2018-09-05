@@ -12,7 +12,7 @@ Before installing, you must download the elasticsearch. It can be done [here](ht
 
 ```bash
 # To install the gci elasticsearch plugin.
-/path/to/elasticsearch/bin/elasticsearch-plugin install file:/path/to/gci-java/elasticsearch-plugin/target/gci-elasticsearch-plugin.zip
+/path/to/elasticsearch/bin/elasticsearch-plugin install file:/path/to/gci-java/elasticsearch-6.4.0-plugin/target/gci-elasticsearch-plugin.zip
 
 # To remove the gci elasticsearch plugin.
 /path/to/elasticsearch/bin/elasticsearch-plugin remove gci-elasticsearch-plugin
