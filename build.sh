@@ -43,7 +43,8 @@ cp elasticsearch-5.5.3-plugin/src/main/resources/plugin-descriptor.properties el
 cd elasticsearch-5.5.3-plugin/target/
 mkdir elasticsearch/
 mv plugin-descriptor.properties gci-core-0.1.jar  gci-elasticsearch-5.5.3-plugin-0.0.1-SNAPSHOT.jar elasticsearch/
-
+zip -r gci-elasticsearch-plugin.zip elasticsearch/
+cd ../../
 
 
 
