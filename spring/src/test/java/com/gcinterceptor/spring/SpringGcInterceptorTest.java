@@ -23,7 +23,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 	@BeforeClass
 	public static void setUpEnvironmentTest() {
-		System.setProperty("jvmtilib", System.getProperty("user.dir").replaceAll("gci-java/spring", "gci-java/core") + "/src/main/java/libgc.so");
+		String[] userDir = System.getProperty("user.dir").split("/");
+		userDir[userDir.length - 1] = "core";
+		System.setProperty("jvmtilib",  String.join("/", userDir) + "/src/main/java/libgc.so");
 	}
 
 	@AfterClass
