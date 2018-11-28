@@ -18,7 +18,6 @@ public class Agent {
     }
 
     public static void premain(String agentArgument, Instrumentation instrumentation) throws Exception {
-        System.out.println("Boooo: " + agentArgument);
         int port = Integer.parseInt(agentArgument);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         HttpContext context = server.createContext("/");
