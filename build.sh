@@ -16,6 +16,12 @@ rm -rf target/
 mvn clean install || exit $?
 cd ../
 
+# Build GCI Agent 
+cd agent/
+rm -rf target/
+mvn clean package || exit $?
+cd ../
+
 # Build SpringGcInterceptor
 cd spring/
 rm -rf target/
