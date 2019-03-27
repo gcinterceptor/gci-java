@@ -6,6 +6,10 @@
 #define CHECK_JVMTI_ERROR(err) \
 checkJvmtiError(err, __FILE__, __LINE__)
 
+#ifndef jni_version_const
+#define jni_version_const JNI_VERSION_10
+#endif
+
 static jvmtiEnv *jvmti;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -20,7 +24,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 		return -1;
 		
 	}
-	return JNI_VERSION_10;
+	return jni_version_const;
 }
 
 JNIEXPORT void JNICALL Java_com_gcinterceptor_core_GC_force(JNIEnv *env, jclass js) {
