@@ -31,15 +31,14 @@ public class Agent {
         System.out.println("rs:" + System.currentTimeMillis());
         String gciHeader = exchange.getRequestHeaders().getFirst(GCI_HEADERS_NAME);
         try (OutputStream out = exchange.getResponseBody()) {
-            boolean shouldGC = runtime.getYoungHeapUsage() >= Long.parseLong(gciHeader);
-            if (shouldGC) {
+	    if ("gc".equalsIgnoreCase(gciHeader)) {
                 System.out.println("gc:" + System.currentTimeMillis());
                 runtime.collect();
-            }
-            exchange.getResponseHeaders().set("Content-Type", "text/plain");
-            exchange.getResponseHeaders().set("Content-Length", "1");
-            exchange.sendResponseHeaders(200, 1);
-            out.write(shouldGC ? 1 : 0);
+	    }
+		
+	    byte[] content = Long.toString(runtime.getYoungHeapUsage()).getBytes();
+            exchange.sendResponseHeaders(200, content.length);
+            out.write(content);
         } finally {
             exchange.close();
         }
