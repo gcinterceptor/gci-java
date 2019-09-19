@@ -6,6 +6,11 @@ sudo: false
 jdk:
   - openjdk10
 
+cache:
+  directories:
+    - $HOME/.m2
+
+
 before_install:
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
 
